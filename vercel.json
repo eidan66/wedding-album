@@ -1,0 +1,6 @@
+{
+    "rewrites": [
+      { "source": "/wedding-album", "destination": "/wedding-album/index.html" },
+      { "source": "/wedding-album/(.*)", "destination": "/wedding-album/index.html" }
+    ]
+  }
