@@ -5,6 +5,7 @@ import svgr from 'vite-plugin-svgr';
 
 
 export default defineConfig({
+  base: '/wedding-album/',
   plugins: [react(),svgr()],
   resolve: {
     alias: {
