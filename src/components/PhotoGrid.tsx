@@ -2,36 +2,43 @@ import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { PhotoItem } from './PhotoItem';
 import { SkeletonItem } from './SkeletonItem';
-import { usePhotos } from '../hooks/usePhotos';
+import { useAlbumItems } from '../hooks/useAlbumItems';
+import { EmptyGrid } from './EmptyGrid';
+
 
 export const PhotoGrid: React.FC = () => {
-  const { photos, loadMore, loading } = usePhotos();
-  const observer = useRef<IntersectionObserver | null>(null);
-  const lastPhotoRef = useRef<HTMLDivElement | null>(null);
+  const { items, loadMore, loading, hasMore } = useAlbumItems();
 
-  useEffect(() => {
-    loadMore();
-  }, [loadMore]);
+  const observer = useRef<IntersectionObserver | null>(null);
+  const lastItemRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (observer.current) observer.current.disconnect();
     observer.current = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && !loading) {
+      if (entries[0].isIntersecting && !loading && hasMore) {
         loadMore();
       }
     });
-    if (lastPhotoRef.current) {
-      observer.current.observe(lastPhotoRef.current);
+    if (lastItemRef.current) {
+      observer.current.observe(lastItemRef.current);
     }
-  }, [photos, loadMore, loading]);
+  }, [items, loadMore, loading, hasMore]);
+
+  if (!loading && items.length === 0) {
+    return (
+     <EmptyGrid/>
+    );
+  }
+
 
   return (
     <Grid>
-      {photos.map((url, index) => (
+      {items.map((item, index) => (
         <PhotoItem
-          key={index}
-          src={url}
-          ref={index === photos.length - 1 ? lastPhotoRef : null}
+          key={item.id}
+          src={item.url}
+          type={item.type}
+          ref={index === items.length - 1 ? lastItemRef : null}
         />
       ))}
       {loading &&

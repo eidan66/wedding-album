@@ -3,12 +3,17 @@ import styled from 'styled-components';
 
 interface PhotoItemProps {
   src: string;
+  type: 'image' | 'video';
 }
 
-export const PhotoItem = forwardRef<HTMLDivElement, PhotoItemProps>(({ src }, ref) => {
+export const PhotoItem = forwardRef<HTMLDivElement, PhotoItemProps>(({ src, type }, ref) => {
   return (
     <Wrapper ref={ref}>
-      <StyledImage src={src} alt="photo" loading="lazy" />
+      {type === 'video' ? (
+        <StyledVideo src={src} controls muted playsInline />
+      ) : (
+        <StyledImage src={src} alt="photo" loading="lazy" />
+      )}
     </Wrapper>
   );
 });
@@ -22,6 +27,12 @@ const Wrapper = styled.div`
 `;
 
 const StyledImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const StyledVideo = styled.video`
   width: 100%;
   height: 100%;
   object-fit: cover;

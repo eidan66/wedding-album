@@ -3,8 +3,11 @@ import heroImage from '../assets/idan-sapir-hero.jpg';
 import bgImage from '../assets/idan_sapir_bg.jpeg'
 
 import RingsIcon from '../assets/svg/wedding-rings.svg';
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { ConfirmUploadModal } from './Modal';
+import type { SupportedFileType } from '../types/upload';
+import { useBulkUploader } from '../hooks/useBulkUploader';
+import { AnimatedHeart } from './AnimatedHeart';
 
 const Wrapper = styled.div`
   width: 100vw;
@@ -102,17 +105,59 @@ const ButtonText = styled.span`
 
 const WeddingRings = styled.img``
 
+const SUPPORTED_FILE_TYPES: SupportedFileType[] = [
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+  'image/webp',
+  'image/heic',
+  'image/heif',      
+  'image/avif',      
+  'video/mp4',
+  'video/mov',
+  'video/quicktime',
+  'video/webm',
+  'video/hevc',
+  'video/3gpp',      
+  'video/x-matroska' 
+];
+
 export const Hero = () => {
   const [inputKey, setInputKey] = useState(Date.now());
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
 
+  const [isPending, startTransition] = useTransition();
+
+  const { cancelUploads, uploadFiles } = useBulkUploader();
+
+  const mergeUniqueFiles = (existing: File[], incoming: File[]) => {
+    const existingNames = new Set(existing.map(f => f.name + f.size + f.lastModified));
+    return [...existing, ...incoming.filter(f => !existingNames.has(f.name + f.size + f.lastModified))];
+  };
+
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputKey(Date.now()); 
+
     const files = e.target.files;
     if (files && files.length > 0) {
       const fileArray = Array.from(files);
-      setMediaFiles((prev) => [...prev, ...fileArray]);
-      setIsModalOpen(true)
+      const validFiles = fileArray.filter(file =>
+        SUPPORTED_FILE_TYPES.includes(file.type as SupportedFileType)
+      );
+  
+      if (validFiles.length !== fileArray.length) {
+        alert('חלק מהקבצים אינם נתמכים...');
+      }
+  
+      if (validFiles.length > 0) {
+        setMediaFiles(prev => mergeUniqueFiles(prev, validFiles));
+        setTimeout(() => {
+          startTransition(() => {
+            setIsModalOpen(true);
+          });
+        }, 100);
+      }
     }
   };
   
@@ -120,17 +165,15 @@ export const Hero = () => {
     setInputKey(Date.now());
   };
 
-  const cancelUpload = ()=>{
+  const cancelUpload = () => {
+    cancelUploads()
     setIsModalOpen(false);
     setMediaFiles([]);
-  }
+  };
 
   const confirmUpload = () => {
-    setTimeout(()=>{
-      setMediaFiles([]);
-      setIsModalOpen(false)
-    },2500);
-    console.log('Files confirmed:', mediaFiles);
+    setMediaFiles([]);
+    setIsModalOpen(false);
   };
 
   return (
@@ -140,22 +183,17 @@ export const Hero = () => {
         <HeroPhoto src={heroImage} alt="ספיר&ועידן" />
         <HeaderWrapper>
           <Title>
-          <Name>
-            ספיר
-          </Name>
-          <WeddingRings src={RingsIcon} alt="טבעות נישואין" width={60} height={50}/>
-          <Name>
-            עידן
-          </Name>
+            <Name>ספיר</Name>
+            <WeddingRings src={RingsIcon} alt="טבעות נישואין" width={60} height={50}/>
+            <Name>עידן</Name>
           </Title>
           <Description>יש לכם תמונה מעולה? אל תחזיקו בבטן!</Description>
-          {/* <Description>גם אם יצאתם עם עין חצי סגורה – זו תמונה של אהבה</Description> */}
 
           <HiddenInput
             key={inputKey}
             id="mediaUpload"
             type="file"
-            accept="image/*,video/mp4,video/webm,video/quicktime"
+            accept={SUPPORTED_FILE_TYPES.join(',')}
             multiple
             onChange={handleUpload}
           />
@@ -165,14 +203,23 @@ export const Hero = () => {
           </ShareButton>
         </HeaderWrapper>
       </HeroContent>
+      {isPending && (
+        <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <AnimatedHeart />
+          <span style={{ marginTop: '1rem', fontSize: '16px', color: '#ccc' }}>
+            טוען קבצים להצגה...
+          </span>
+        </div>
+      )}
       {isModalOpen && (
         <ConfirmUploadModal
           mediaFiles={mediaFiles}
           setMediaFiles={setMediaFiles}
           onConfirm={confirmUpload}
-          onCancel={cancelUpload}
+          cancelUpload={cancelUpload}
+          uploadFiles={uploadFiles}
         />
-    )}
+      )}
     </Wrapper>
   );
 };
