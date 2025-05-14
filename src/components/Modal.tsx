@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { AnimatedHeart } from './AnimatedHeart';
 import { createPortal } from 'react-dom';
+import { useAlbum } from '../hooks/useAlbum';
 
 interface ConfirmUploadModalProps {
   mediaFiles: File[];
@@ -20,12 +21,13 @@ export const ConfirmUploadModal: React.FC<ConfirmUploadModalProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { refresh } = useAlbum();
 
   const confirmUpload = async () => {
     setIsLoading(true);
     try {
-      console.log('idan - confirmUpload mediaFiles:', mediaFiles);
       await uploadFiles(mediaFiles);
+      await refresh();
       onConfirm();
     } catch (err) {
       console.error('Upload failed:', err);
@@ -37,7 +39,6 @@ export const ConfirmUploadModal: React.FC<ConfirmUploadModalProps> = ({
 
   const handleRemove = (indexToRemove: number) => {
     const updated = mediaFiles.filter((_, i) => i !== indexToRemove);
-    console.log('idan - handleRemove updated:', updated);
     setMediaFiles(updated);
   };
 
@@ -45,7 +46,6 @@ export const ConfirmUploadModal: React.FC<ConfirmUploadModalProps> = ({
     cancelUpload();
   };
 
-  // Lock body scroll when modal is open
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     return () => {
@@ -130,7 +130,7 @@ const ModalContent = styled.div`
   width: 90%;
   max-width: 420px;
   max-height: 90vh;
-  overflow: hidden; /* We'll let ModalScrollableContent manage the scrolling */
+  overflow: hidden;
   text-align: center;
   animation: ${fadeIn} 0.3s ease-out;
   border: 1px solid ${({ theme }) => theme.colors.border};
@@ -138,7 +138,6 @@ const ModalContent = styled.div`
   display: flex;
   flex-direction: column;
 `;
-
 
 const CloseButton = styled.button`
   position: absolute;

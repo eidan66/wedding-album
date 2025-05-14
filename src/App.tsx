@@ -5,19 +5,22 @@ import { sageTheme } from './theme';
 import { Hero } from './components/Hero';
 import { PhotoGrid } from './components/PhotoGrid';
 import { Footer } from './components/Footer';
+import { AlbumProvider } from './context/AlbumContext';
 
 const PhotoGallery = styled.main``;
 
 const App = () => {
   return (
-    <ThemeProvider theme={sageTheme}>
-      <GlobalStyle />
-      <Hero />
-      <PhotoGallery>
-        <PhotoGrid />
-      </PhotoGallery>
-      <Footer />
-    </ThemeProvider>
+    <AlbumProvider>
+      <ThemeProvider theme={sageTheme}>
+        <GlobalStyle />
+        <Hero />
+        <PhotoGallery>
+          <PhotoGrid />
+        </PhotoGallery>
+        <Footer />
+      </ThemeProvider>
+    </AlbumProvider>
   );
 };
 
