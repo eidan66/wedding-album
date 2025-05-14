@@ -2,12 +2,12 @@ import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { PhotoItem } from './PhotoItem';
 import { SkeletonItem } from './SkeletonItem';
-import { useAlbumItems } from '../hooks/useAlbumItems';
+import { useAlbum } from '../hooks/useAlbum';
 import { EmptyGrid } from './EmptyGrid';
 
 
 export const PhotoGrid: React.FC = () => {
-  const { items, loadMore, loading, hasMore } = useAlbumItems();
+  const { items, loadMore, loading, hasMore } = useAlbum();
 
   const observer = useRef<IntersectionObserver | null>(null);
   const lastItemRef = useRef<HTMLDivElement | null>(null);

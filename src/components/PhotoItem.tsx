@@ -10,7 +10,13 @@ export const PhotoItem = forwardRef<HTMLDivElement, PhotoItemProps>(({ src, type
   return (
     <Wrapper ref={ref}>
       {type === 'video' ? (
-        <StyledVideo src={src} controls muted playsInline />
+        <StyledVideo src={src}
+          controls
+          muted
+          playsInline
+          preload="metadata"
+          autoPlay={false}
+          loop={false} />
       ) : (
         <StyledImage src={src} alt="photo" loading="lazy" />
       )}
