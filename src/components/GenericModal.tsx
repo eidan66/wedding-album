@@ -33,7 +33,7 @@ const Backdrop = styled.div`
 `;
 
 const ModalContent = styled.div`
-direction: rtl;
+  direction: rtl;
   background: ${({ theme }) => theme.colors.modalBackground};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: 16px;

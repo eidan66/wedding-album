@@ -32,8 +32,8 @@ const handleFullClose = () => {
   if (loadingTimeout) clearTimeout(loadingTimeout);
   setStep('intro');
   setErrorMessage(null);
-  cancelUpload(); // מנקה את כל הקבצים
-  onClose();      // סוגר את המודאל
+  cancelUpload();
+  onClose();
 };
 
   const handleContinue = async () => {
@@ -85,8 +85,8 @@ const handleFullClose = () => {
 
     const handleCancel = () => {
     if (loadingTimeout) clearTimeout(loadingTimeout);
-    cancelUpload();  // מאפס את הקבצים וכו'
-    onClose();       // פשוט סוגר את המודאל
+    cancelUpload();
+    onClose();
     };
 
   const handleCloseError = () => {

@@ -3,8 +3,7 @@ import styled from 'styled-components';
 import { SkeletonItem } from './SkeletonItem';
 import { useAlbum } from '../hooks/useAlbum';
 import { EmptyGrid } from './EmptyGrid';
-import { MediaPreviewModal } from './PhotoItem'; // מודאל עם תמונה/וידאו + slideshow
-
+import { MediaPreviewModal } from './PhotoItem';
 
 export const PhotoGrid: React.FC = () => {
   const { items, loadMore, loading, hasMore } = useAlbum();
