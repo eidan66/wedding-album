@@ -1,13 +1,12 @@
 import styled from 'styled-components';
 import heroImage from '../assets/idan-sapir-hero.jpg';
-import bgImage from '../assets/idan_sapir_bg.jpeg'
+import bgImage from '../assets/idan_sapir_bg.jpeg';
 
 import RingsIcon from '../assets/svg/wedding-rings.svg';
-import { useState, useTransition } from 'react';
-import { ConfirmUploadModal } from './Modal';
+import { useRef, useState } from 'react';
 import type { SupportedFileType } from '../types/upload';
 import { useBulkUploader } from '../hooks/useBulkUploader';
-import { AnimatedHeart } from './AnimatedHeart';
+import { UploadFlowManager } from './UploadFlowManager';
 
 const Wrapper = styled.div`
   width: 100vw;
@@ -54,12 +53,12 @@ const HeaderWrapper = styled.div`
   align-items: center;
   justify-content: center;
   flex-direction: column;
-`
+`;
 
 const Title = styled.div`
-display: flex;
-flex-direction:row;
-`
+  display: flex;
+  flex-direction: row;
+`;
 
 const Name = styled.h1`
   font-size: 42px;
@@ -70,14 +69,13 @@ const Name = styled.h1`
   gap: 0.5rem;
   letter-spacing: 8px;
   font-family: 'SuezOne', Inter, sans-serif;
-
 `;
 
-const Description =styled.h2`
-color: ${({theme})=>theme.colors.secondaryText};
-font-size: 18px;
-margin:0;
-`
+const Description = styled.h2`
+  color: ${({ theme }) => theme.colors.secondaryText};
+  font-size: 18px;
+  margin: 0;
+`;
 
 const HiddenInput = styled.input`
   display: none;
@@ -102,8 +100,7 @@ const ButtonText = styled.span`
   font-size: 24px;
 `;
 
-
-const WeddingRings = styled.img``
+const WeddingRings = styled.img``;
 
 const SUPPORTED_FILE_TYPES: SupportedFileType[] = [
   'image/jpeg',
@@ -111,113 +108,115 @@ const SUPPORTED_FILE_TYPES: SupportedFileType[] = [
   'image/gif',
   'image/webp',
   'image/heic',
-  'image/heif',      
-  'image/avif',      
+  'image/heif',
+  'image/avif',
   'video/mp4',
   'video/mov',
   'video/quicktime',
   'video/webm',
   'video/hevc',
-  'video/3gpp',      
-  'video/x-matroska' 
+  'video/3gpp',
+  'video/x-matroska',
 ];
 
 export const Hero = () => {
   const [inputKey, setInputKey] = useState(Date.now());
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isFlowOpen, setIsFlowOpen] = useState(false);
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
 
-  const [isPending, startTransition] = useTransition();
-
   const { cancelUploads, uploadFiles } = useBulkUploader();
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const mergeUniqueFiles = (existing: File[], incoming: File[]) => {
     const existingNames = new Set(existing.map(f => f.name + f.size + f.lastModified));
     return [...existing, ...incoming.filter(f => !existingNames.has(f.name + f.size + f.lastModified))];
   };
 
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputKey(Date.now()); 
-
+  const handleFileSelection = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputKey(Date.now());
     const files = e.target.files;
     if (files && files.length > 0) {
       const fileArray = Array.from(files);
       const validFiles = fileArray.filter(file =>
         SUPPORTED_FILE_TYPES.includes(file.type as SupportedFileType)
       );
-  
+
       if (validFiles.length !== fileArray.length) {
         alert('חלק מהקבצים אינם נתמכים...');
       }
-  
+
       if (validFiles.length > 0) {
         setMediaFiles(prev => mergeUniqueFiles(prev, validFiles));
-        setTimeout(() => {
-          startTransition(() => {
-            setIsModalOpen(true);
-          });
-        }, 100);
+        setIsFlowOpen(true);
       }
     }
   };
-  
-  const handleClick = () => {
-    setInputKey(Date.now());
-  };
+
+const triggerFilePicker = () => {
+  return new Promise<File[]>((resolve) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = SUPPORTED_FILE_TYPES.join(',');
+    input.multiple = true;
+
+    input.onchange = () => {
+      const files = Array.from(input.files || []);
+      resolve(files);
+    };
+
+    input.click();
+  });
+};
 
   const cancelUpload = () => {
-    cancelUploads()
-    setIsModalOpen(false);
+    cancelUploads();
+    setIsFlowOpen(false);
     setMediaFiles([]);
   };
 
   const confirmUpload = () => {
     setMediaFiles([]);
-    setIsModalOpen(false);
+    setIsFlowOpen(false);
   };
 
   return (
     <Wrapper>
-      <Background/>
+      <Background />
       <HeroContent>
-        <HeroPhoto src={heroImage} alt="ספיר&ועידן" />
+        <HeroPhoto src={heroImage} alt="ספיר&עידן" />
         <HeaderWrapper>
           <Title>
             <Name>ספיר</Name>
-            <WeddingRings src={RingsIcon} alt="טבעות נישואין" width={60} height={50}/>
+            <WeddingRings src={RingsIcon} alt="טבעות נישואין" width={60} height={50} />
             <Name>עידן</Name>
           </Title>
           <Description>יש לכם תמונה מעולה? אל תחזיקו בבטן!</Description>
 
           <HiddenInput
             key={inputKey}
+            ref={inputRef}
             id="mediaUpload"
             type="file"
             accept={SUPPORTED_FILE_TYPES.join(',')}
             multiple
-            onChange={handleUpload}
+            onChange={handleFileSelection}
           />
-          
-          <ShareButton htmlFor="mediaUpload" onClick={handleClick}>
+
+          <ShareButton onClick={() => setIsFlowOpen(true)}>
             <ButtonText>שתפו תמונות</ButtonText>
           </ShareButton>
         </HeaderWrapper>
       </HeroContent>
-      {isPending && (
-        <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <AnimatedHeart />
-          <span style={{ marginTop: '1rem', fontSize: '16px', color: '#ccc' }}>
-            טוען קבצים להצגה...
-          </span>
-        </div>
-      )}
-      {isModalOpen && (
-        <ConfirmUploadModal
+
+      {isFlowOpen && (
+        <UploadFlowManager
           mediaFiles={mediaFiles}
           setMediaFiles={setMediaFiles}
-          onConfirm={confirmUpload}
-          cancelUpload={cancelUpload}
           uploadFiles={uploadFiles}
+          cancelUpload={cancelUpload}
+          onConfirm={confirmUpload}
+          onClose={() => setIsFlowOpen(false)}
+          triggerFilePicker={triggerFilePicker}
         />
       )}
     </Wrapper>

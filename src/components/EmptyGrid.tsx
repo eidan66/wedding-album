@@ -6,8 +6,8 @@ import animatedIdanSapir from '../assets/animated-idan-sapir.png'
 
 export const EmptyGrid:FunctionComponent =  ()=> (
     <EmptyState>
+        <EmptyText>וואו! אתם הראשונים שיעלו תמונה!!<br/>אל תתביישו... תעלו תמונה</EmptyText>
         <img src={animatedIdanSapir} alt="no photos yet" />
-        <EmptyText>וואו! אתם הראשונים שיעלו תמונה!!<br/> תנו לנו רגע מיוחד!</EmptyText>
     </EmptyState>
 );
 
