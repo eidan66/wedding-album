@@ -15,22 +15,22 @@ export const MediaPreviewModal: React.FC<MediaPreviewModalProps> = ({
 }) => {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
+  const handlePrev = useCallback(() => {
+    setCurrentIndex((prev) => (prev === 0 ? mediaItems.length - 1 : prev - 1));
+  },[mediaItems.length]);
+
+  const handleNext =useCallback( () => {
+    setCurrentIndex((prev) => (prev === mediaItems.length - 1 ? 0 : prev + 1));
+  },[mediaItems.length]);
+
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
       if (e.key === 'ArrowLeft') handlePrev();
       if (e.key === 'ArrowRight') handleNext();
     },
-    [onClose]
+    [handleNext, handlePrev, onClose]
   );
-
-  const handlePrev = () => {
-    setCurrentIndex((prev) => (prev === 0 ? mediaItems.length - 1 : prev - 1));
-  };
-
-  const handleNext = () => {
-    setCurrentIndex((prev) => (prev === mediaItems.length - 1 ? 0 : prev + 1));
-  };
 
   const handleBackdropClick = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).id === 'media-preview-backdrop') {
@@ -107,13 +107,12 @@ const ModalContainer = styled.div`
 
 const CloseButton = styled.button`
   position: absolute;
-  top: 10px;
-  right: 10px;
-  background: rgba(0, 0, 0, 0.6);
+  top: 0px;
+  right: 0px;
   border: none;
+  background: transparent;
   color: white;
   font-size: 24px;
-  border-radius: 50%;
   width: 36px;
   height: 36px;
   cursor: pointer;
