@@ -1,27 +1,20 @@
-import styled, { ThemeProvider } from 'styled-components';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Layout from './components/Layout';
+import { Gallery } from './Pages/Gallery';
+import { Upload } from './Pages/Upload';
 
-import { GlobalStyle } from './styles/GlobalStyle';
-import { sageTheme } from './theme';
-import { Hero } from './components/Hero';
-import { PhotoGrid } from './components/PhotoGrid';
-import { Footer } from './components/Footer';
-import { AlbumProvider } from './context/AlbumContext';
-
-const PhotoGallery = styled.main``;
-
-const App = () => {
+function App() {
   return (
-    <AlbumProvider>
-      <ThemeProvider theme={sageTheme}>
-        <GlobalStyle />
-        <Hero />
-        <PhotoGallery>
-          <PhotoGrid />
-        </PhotoGallery>
-        <Footer />
-      </ThemeProvider>
-    </AlbumProvider>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/wedding-album/" element={<Layout />}>
+          <Route index element={<Navigate to="/wedding-album/gallery" replace />} />
+          <Route path="/wedding-album/gallery" element={<Gallery />} />
+          <Route path="/wedding-album/upload" element={<Upload />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
-};
+}
 
 export default App;

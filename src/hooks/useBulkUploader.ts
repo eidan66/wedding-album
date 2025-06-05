@@ -1,5 +1,7 @@
 import { useState, useRef } from 'react';
 import { API_BASE } from '../config';
+import { WeddingMedia } from '../Entities/WeddingMedia';
+import type { WeddingMediaItem } from '../Entities/WeddingMedia';
 
 async function asyncPool<T, R>(
   poolLimit: number,
@@ -22,13 +24,14 @@ async function asyncPool<T, R>(
   return Promise.all(ret);
 }
 
-type UploadStatus = 'pending' | 'uploading' | 'success' | 'error';
+export type UploadStatus = 'pending' | 'uploading' | 'success' | 'error';
 
-interface FileUploadState {
+export interface FileUploadState {
   file: File;
   status: UploadStatus;
   progress: number;
   error?: string;
+  mediaItem?: WeddingMediaItem;
 }
 
 const MAX_CONCURRENT_UPLOADS = 4;
@@ -37,7 +40,11 @@ export const useBulkUploader = () => {
   const [uploads, setUploads] = useState<FileUploadState[]>([]);
   const uploadControllers = useRef<AbortController[]>([]);
 
-  const uploadFiles = async (files: File[]) => {
+  const initializeUploads = (files: File[]) => {
+    setUploads(files.map(file => ({ file, status: 'pending', progress: 0 })));
+  };
+
+  const uploadFiles = async (files: File[], uploaderName: string, caption: string) => {
     uploadControllers.current = [];
     setUploads(files.map(file => ({ file, status: 'pending', progress: 0 })));
 
@@ -85,14 +92,35 @@ export const useBulkUploader = () => {
               );
             }
           };
-          xhr.onload = () => {
+          xhr.onload = async () => {
             if (xhr.status === 200) {
-              setUploads(prev =>
-                prev.map((u, i) =>
-                  i === idx ? { ...u, status: 'success', progress: 100 } : u
-                )
-              );
-              resolve();
+              try {
+                // 3. Create media item in backend after S3 upload succeeds
+                const mediaParams = {
+                  title: caption || "",
+                  media_url: url.split('?')[0],
+                  media_type: (file.type.startsWith('image/') ? 'photo' : 'video') as WeddingMediaItem['media_type'],
+                  uploader_name: uploaderName || "אורח אנונימי"
+                };
+                const createdMedia = await WeddingMedia.create(mediaParams);
+
+                setUploads(prev =>
+                  prev.map((u, i) =>
+                    i === idx ? { ...u, status: 'success', progress: 100, mediaItem: createdMedia } : u
+                  )
+                );
+                resolve();
+              } catch (createError) {
+                console.error('Error creating media item after S3 upload:', createError);
+                setUploads(prev =>
+                  prev.map((u, i) =>
+                    i === idx
+                      ? { ...u, status: 'error', error: (createError as Error).message }
+                      : u
+                  )
+                );
+                reject(createError);
+              }
             } else {
               setUploads(prev =>
                 prev.map((u, i) =>
@@ -108,19 +136,30 @@ export const useBulkUploader = () => {
             setUploads(prev =>
               prev.map((u, i) =>
                 i === idx
-                  ? { ...u, status: 'error', error: 'Network error' }
+                  ? { ...u, status: 'error', error: 'Network error during upload' }
                   : u
               )
             );
-            reject(new Error('Network error'));
+            reject(new Error('Network error during upload'));
+          };
+          xhr.onabort = () => {
+            setUploads(prev =>
+              prev.map((u, i) =>
+                i === idx
+                  ? { ...u, status: 'error', error: 'Upload aborted' }
+                  : u
+              )
+            );
+            reject(new Error('Upload aborted'));
           };
           xhr.send(file);
         });
       } catch (err) {
+        console.error('Error during upload process:', err);
         setUploads(prev =>
           prev.map((u, i) =>
             i === idx
-              ? { ...u, status: 'error', error: (err as Error).message }
+              ? { ...u, status: 'error', error: (err as Error).message || 'An error occurred' }
               : u
           )
         );
@@ -132,5 +171,5 @@ export const useBulkUploader = () => {
     uploadControllers.current.forEach(controller => controller?.abort());
   };
 
-  return { uploads, uploadFiles, cancelUploads };
+  return { uploads, uploadFiles, cancelUploads, initializeUploads };
 };

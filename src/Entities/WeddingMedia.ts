@@ -1,0 +1,96 @@
+import { API_BASE } from '@/config';
+
+interface WeddingMediaCreateParams {
+  title?: string;
+  media_url: string;
+  media_type: 'photo' | 'video';
+  uploader_name: string;
+  thumbnail_url?: string;
+}
+
+export interface WeddingMediaItem extends WeddingMediaCreateParams {
+  id: string;
+  created_date: string;
+}
+
+export const WeddingMedia = {
+  name: "WeddingMedia",
+  type: "object",
+  properties: {
+    title: {
+      type: "string",
+      description: "Caption or title for the media"
+    },
+    media_url: {
+      type: "string",
+      description: "URL of the uploaded media file"
+    },
+    media_type: {
+      type: "string",
+      enum: ["photo", "video"],
+      description: "Type of media"
+    },
+    uploader_name: {
+      type: "string",
+      description: "Name of the person who uploaded"
+    },
+    thumbnail_url: {
+      type: "string",
+      description: "Thumbnail URL for videos"
+    }
+  },
+  required: ["media_url", "media_type"],
+
+  // Methods
+  create: async (params: WeddingMediaCreateParams): Promise<WeddingMediaItem> => {
+    try {
+      const response = await fetch(`${API_BASE}/media`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(params),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create media item');
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error creating media item:', error);
+      throw error;
+    }
+  },
+
+  list: async (sortBy: string = "-created_date"): Promise<WeddingMediaItem[]> => {
+    try {
+      const response = await fetch(`${API_BASE}/download?sort=${sortBy}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch media items');
+      }
+
+      const data: AlbumResponse = await response.json();
+      return data.items.map(item => ({
+        id: item.id,
+        media_url: item.url,
+        media_type: item.type === 'image' ? 'photo' : item.type,
+        title: "",
+        uploader_name: "אורח אנונימי",
+        created_date: new Date().toISOString(),
+        thumbnail_url: undefined,
+      }));
+    } catch (error) {
+      console.error('Error fetching media items:', error);
+      throw error;
+    }
+  }
+};
