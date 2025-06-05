@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { WeddingMedia } from "@/Entities/WeddingMedia";
 import type { WeddingMediaItem } from "@/Entities/WeddingMedia";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Plus, Heart } from "lucide-react";
+import { Plus, Heart, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import MediaGrid from "../components/gallery/MediaGrid";
@@ -13,30 +13,93 @@ import FilterTabs from "../components/gallery/FilterTabs";
 import GalleryHeader from "../components/gallery/GalleryHeader";
 import MediaSkeleton from "../components/gallery/MediaSkeleton";
 
+const ITEMS_PER_PAGE = 20; // Define items per page
+
 export const Gallery = () => {
   const [media, setMedia] = useState<WeddingMediaItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingInitial, setIsLoadingInitial] = useState(true); // Loading state for initial load
+  const [isLoadingMore, setIsLoadingMore] = useState(false); // Loading state for infinite scroll
+  const [page, setPage] = useState(1); // Current page number
+  const [hasMore, setHasMore] = useState(true); // Flag to indicate if there are more items to load
   const [selectedMedia, setSelectedMedia] = useState<WeddingMediaItem | null>(null);
   const [activeFilter, setActiveFilter] = useState<"all" | "photo" | "video">("all");
   const [viewerIndex, setViewerIndex] = useState(0);
 
-  useEffect(() => {
-    loadMedia();
-  }, []);
+  const loader = useRef(null); // Ref for the loading indicator element
 
-  const loadMedia = async () => {
-    setIsLoading(true);
+  // Function to fetch media with pagination
+  const fetchMedia = async (pageToLoad: number) => {
+    if (pageToLoad === 1) {
+      setIsLoadingInitial(true);
+    } else {
+      setIsLoadingMore(true);
+    }
+    
     try {
-      const fetchedMedia = await WeddingMedia.list("-created_date");
-      setMedia(fetchedMedia);
+      // Pass page and limit to the list function
+      const fetchedMedia = await WeddingMedia.list("-created_date", pageToLoad, ITEMS_PER_PAGE);
+      console.log("Fetched media items with details (Page", pageToLoad, "):", fetchedMedia);
+      
+      if (pageToLoad === 1) {
+        setMedia(fetchedMedia);
+      } else {
+        setMedia(prevMedia => [...prevMedia, ...fetchedMedia]);
+      }
+
+      // Determine if there are more items based on the number of items fetched
+      // The server should ideally return a total count or a 'hasMore' flag.
+      // For now, assuming if we get less than ITEMS_PER_PAGE, there are no more.
+      setHasMore(fetchedMedia.length === ITEMS_PER_PAGE);
+      setPage(pageToLoad);
+
     } catch (error) {
       console.error("Error loading media:", error);
+      // Optionally set an error state to display to the user
+      setHasMore(false); // Stop trying to load more on error
     }
-    setIsLoading(false);
+    
+    setIsLoadingInitial(false);
+    setIsLoadingMore(false);
   };
 
+  // Initial load
+  useEffect(() => {
+    fetchMedia(1);
+  }, []); // Empty dependency array means this runs once on mount
+
+  // Infinite scrolling logic
+  useEffect(() => {
+    const options = {
+      root: null, // Use the viewport as the root
+      rootMargin: "20px", // Load when the loader is within 20px of the viewport
+      threshold: 1.0 // Trigger when 100% of the loader is visible
+    };
+
+    const observer = new IntersectionObserver((entities) => {
+      const target = entities[0];
+      // Check if target exists and is intersecting
+      if (target && target.isIntersecting && hasMore && !isLoadingInitial && !isLoadingMore) {
+        console.log("Loading more media...");
+        fetchMedia(page + 1);
+      }
+    }, options);
+
+    // Start observing the loader element
+    if (loader.current) {
+      observer.observe(loader.current);
+    }
+
+    // Clean up the observer on component unmount
+    return () => {
+      if (loader.current) {
+        observer.unobserve(loader.current);
+      }
+    };
+  }, [hasMore, isLoadingInitial, isLoadingMore, page]); // Re-run effect if these dependencies change
+
+  // Filtering logic remains the same, but it now filters the accumulating 'media' state
   const filteredMedia = media.filter(item => {
-    console.log("Value of media before filter:", media);
+    // console.log("Value of media before filter:", media); // Keep or remove this log as needed
     if (activeFilter === "all") return true;
     return item.media_type === activeFilter;
   });
@@ -87,7 +150,7 @@ export const Gallery = () => {
 
         {/* Media Grid */}
         <AnimatePresence mode="wait">
-          {isLoading ? (
+          {isLoadingInitial ? (
             <MediaSkeleton />
           ) : filteredMedia.length > 0 ? (
             <MediaGrid 
@@ -117,6 +180,18 @@ export const Gallery = () => {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Loading indicator for infinite scroll */}
+        {isLoadingMore && (
+          <div className="flex justify-center items-center py-8">
+            <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+          </div>
+        )}
+
+        {/* Element to observe for infinite scrolling */}
+        {hasMore && !isLoadingInitial && !isLoadingMore && filteredMedia.length > 0 && (
+          <div ref={loader} className="h-1"></div> // Small, invisible element at the bottom
+        )}
 
         {/* Media Viewer Modal */}
         <MediaViewer

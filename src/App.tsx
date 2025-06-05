@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import { Gallery } from './Pages/Gallery';
-import { Upload } from './Pages/Upload';
+import Upload from './Pages/Upload';
 
 function App() {
   return (

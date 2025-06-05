@@ -31,10 +31,13 @@ export default function MediaGrid({ media, onMediaClick }: MediaGridProps) {
                 />
               ) : (
                 <div className="relative">
-                  <img
-                    src={item.thumbnail_url || item.media_url}
-                    alt={item.title || "Video thumbnail"}
-                    className="w-full h-auto object-cover"
+                  <video
+                    src={item.media_url}
+                    poster={item.thumbnail_url}
+                    controls={false}
+                    muted
+                    loop
+                    className="w-full h-auto object-cover group-hover:scale-110 transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-black/20 flex items-center justify-center group-hover:bg-black/30 transition-colors duration-300">
                     <div className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">

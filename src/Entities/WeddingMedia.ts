@@ -64,9 +64,9 @@ export const WeddingMedia = {
     }
   },
 
-  list: async (sortBy: string = "-created_date"): Promise<WeddingMediaItem[]> => {
+  list: async (sortBy: string = "-created_date", page: number = 1, limit: number = 20): Promise<WeddingMediaItem[]> => {
     try {
-      const response = await fetch(`${API_BASE}/download?sort=${sortBy}`, {
+      const response = await fetch(`${API_BASE}/download?sort=${sortBy}&page=${page}&limit=${limit}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -83,10 +83,10 @@ export const WeddingMedia = {
         id: item.id,
         media_url: item.url,
         media_type: item.type === 'image' ? 'photo' : item.type,
-        title: "",
-        uploader_name: "אורח אנונימי",
-        created_date: new Date().toISOString(),
-        thumbnail_url: undefined,
+        title: item.title,
+        uploader_name: item.uploader_name,
+        created_date: item.created_date,
+        thumbnail_url: item.thumbnail_url,
       }));
     } catch (error) {
       console.error('Error fetching media items:', error);

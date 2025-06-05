@@ -64,7 +64,7 @@ export default function MediaViewer({
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm"
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm z-20"
                 onClick={(e) => {
                   e.stopPropagation();
                   onNavigate('prev');
@@ -76,7 +76,7 @@ export default function MediaViewer({
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm"
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm z-20"
                 onClick={(e) => {
                   e.stopPropagation();
                   onNavigate('next');
@@ -91,7 +91,7 @@ export default function MediaViewer({
           <Button
             variant="ghost"
             size="icon"
-            className="absolute top-4 left-4 w-12 h-12 bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm"
+            className="absolute top-4 left-4 w-12 h-12 bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm z-20"
             onClick={onClose}
           >
             <X className="w-6 h-6" />
@@ -99,7 +99,7 @@ export default function MediaViewer({
 
           {/* Counter */}
           {totalCount > 1 && (
-            <div className="absolute top-4 right-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 text-white text-sm font-medium">
+            <div className="absolute top-4 right-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 text-white text-sm font-medium z-20">
               {currentIndex + 1} מתוך {totalCount}
             </div>
           )}
@@ -111,7 +111,7 @@ export default function MediaViewer({
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="relative max-w-5xl max-h-[80vh] w-full"
+            className="relative w-full max-w-screen-lg mx-auto h-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {media.media_type === 'photo' ? (
@@ -119,6 +119,7 @@ export default function MediaViewer({
                 src={media.media_url}
                 alt={media.title || "זיכרון מהחתונה"}
                 className="w-full h-full object-contain rounded-2xl shadow-2xl"
+                style={{ maxHeight: '80dvh' }}
               />
             ) : (
               <video
@@ -134,26 +135,26 @@ export default function MediaViewer({
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 rounded-b-2xl"
+              className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 rounded-b-2xl z-20 overflow-hidden"
             >
-              <div className="text-white space-y-2">
+              <div className="text-white space-y-2 w-full">
                 {media.title && (
-                  <h3 className="text-lg font-semibold leading-relaxed">
+                  <h3 className="text-lg font-semibold leading-relaxed break-words">
                     {media.title}
                   </h3>
                 )}
                 
-                <div className="flex items-center gap-4 text-sm opacity-90 flex-wrap">
+                <div className="flex items-start gap-4 text-sm opacity-90 flex-wrap w-full">
                   {media.uploader_name && (
-                    <div className="flex items-center gap-2">
-                      <User className="w-4 h-4" />
-                      <span>שותף על ידי {media.uploader_name}</span>
+                    <div className="flex items-center gap-2 min-w-0 flex-shrink">
+                      <User className="w-4 h-4 flex-shrink-0" />
+                      <span className="break-words">שותף על ידי {media.uploader_name}</span>
                     </div>
                   )}
                   
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
-                    <span>{format(new Date(media.created_date), "d MMMM yyyy 'בשעה' H:mm", { locale: he })}</span>
+                  <div className="flex items-center gap-2 min-w-0 flex-shrink">
+                    <Calendar className="w-4 h-4 flex-shrink-0" />
+                    <span className="break-words">{format(new Date(media.created_date), "d MMMM yyyy 'בשעה' H:mm", { locale: he })}</span>
                   </div>
                 </div>
               </div>

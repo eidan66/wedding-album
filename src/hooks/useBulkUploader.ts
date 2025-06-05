@@ -40,13 +40,9 @@ export const useBulkUploader = () => {
   const [uploads, setUploads] = useState<FileUploadState[]>([]);
   const uploadControllers = useRef<AbortController[]>([]);
 
-  const initializeUploads = (files: File[]) => {
-    setUploads(files.map(file => ({ file, status: 'pending', progress: 0 })));
-  };
-
   const uploadFiles = async (files: File[], uploaderName: string, caption: string) => {
     uploadControllers.current = [];
-    setUploads(files.map(file => ({ file, status: 'pending', progress: 0 })));
+    setUploads(files.map(file => ({ file, status: 'pending' as UploadStatus, progress: 0 })));
 
     await asyncPool(MAX_CONCURRENT_UPLOADS, files, async (file, idx) => {
       const controller = new AbortController();
@@ -54,11 +50,12 @@ export const useBulkUploader = () => {
 
       setUploads(prev =>
         prev.map((u, i) =>
-          i === idx ? { ...u, status: 'uploading', progress: 0 } : u
+          i === idx ? { ...u, status: 'uploading' as UploadStatus, progress: 0 } : u
         )
       );
       try {
         // 1. Get pre-signed URL
+        console.time(`Upload file ${file.name}: Get pre-signed URL`);
         const res = await fetch(`${API_BASE}/upload-url`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -69,6 +66,7 @@ export const useBulkUploader = () => {
           }),
           signal: controller.signal,
         });
+        console.timeEnd(`Upload file ${file.name}: Get pre-signed URL`);
         if (!res.ok) {
           const errorData = await res.json();
           const errorMsg = `[${errorData.code || 'ERROR'}] ${errorData.message || 'Failed to get upload URL'}`;
@@ -77,6 +75,7 @@ export const useBulkUploader = () => {
         const { url } = await res.json();
 
         // 2. Upload to S3 with progress
+        console.time(`Upload file ${file.name}: Upload to S3`);
         await new Promise<void>((resolve, reject) => {
           const xhr = new XMLHttpRequest();
           xhr.open('PUT', url, true);
@@ -96,6 +95,7 @@ export const useBulkUploader = () => {
             if (xhr.status === 200) {
               try {
                 // 3. Create media item in backend after S3 upload succeeds
+                console.time(`Upload file ${file.name}: Create media item`);
                 const mediaParams = {
                   title: caption || "",
                   media_url: url.split('?')[0],
@@ -103,10 +103,11 @@ export const useBulkUploader = () => {
                   uploader_name: uploaderName || "אורח אנונימי"
                 };
                 const createdMedia = await WeddingMedia.create(mediaParams);
+                console.timeEnd(`Upload file ${file.name}: Create media item`);
 
                 setUploads(prev =>
                   prev.map((u, i) =>
-                    i === idx ? { ...u, status: 'success', progress: 100, mediaItem: createdMedia } : u
+                    i === idx ? { ...u, status: 'success' as UploadStatus, progress: 100, mediaItem: createdMedia } : u
                   )
                 );
                 resolve();
@@ -115,7 +116,7 @@ export const useBulkUploader = () => {
                 setUploads(prev =>
                   prev.map((u, i) =>
                     i === idx
-                      ? { ...u, status: 'error', error: (createError as Error).message }
+                      ? { ...u, status: 'error' as UploadStatus, error: (createError as Error).message }
                       : u
                   )
                 );
@@ -125,7 +126,7 @@ export const useBulkUploader = () => {
               setUploads(prev =>
                 prev.map((u, i) =>
                   i === idx
-                    ? { ...u, status: 'error', error: `Upload failed (${xhr.status})` }
+                    ? { ...u, status: 'error' as UploadStatus, error: `Upload failed (${xhr.status})` }
                     : u
                 )
               );
@@ -136,7 +137,7 @@ export const useBulkUploader = () => {
             setUploads(prev =>
               prev.map((u, i) =>
                 i === idx
-                  ? { ...u, status: 'error', error: 'Network error during upload' }
+                  ? { ...u, status: 'error' as UploadStatus, error: 'Network error during upload' }
                   : u
               )
             );
@@ -146,7 +147,7 @@ export const useBulkUploader = () => {
             setUploads(prev =>
               prev.map((u, i) =>
                 i === idx
-                  ? { ...u, status: 'error', error: 'Upload aborted' }
+                  ? { ...u, status: 'error' as UploadStatus, error: 'Upload aborted' }
                   : u
               )
             );
@@ -159,7 +160,7 @@ export const useBulkUploader = () => {
         setUploads(prev =>
           prev.map((u, i) =>
             i === idx
-              ? { ...u, status: 'error', error: (err as Error).message || 'An error occurred' }
+              ? { ...u, status: 'error' as UploadStatus, error: (err as Error).message || 'An error occurred' }
               : u
           )
         );
@@ -171,5 +172,5 @@ export const useBulkUploader = () => {
     uploadControllers.current.forEach(controller => controller?.abort());
   };
 
-  return { uploads, uploadFiles, cancelUploads, initializeUploads };
+  return { uploads, uploadFiles, cancelUploads };
 };

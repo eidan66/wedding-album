@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,34 +10,26 @@ import { motion } from "framer-motion";
 import UploadZone from "../components/upload/UploadZone";
 import UploadPreview from "../components/upload/UploadPreview";
 import SuccessAnimation from "../components/upload/SuccessAnimation";
-import { useBulkUploader } from "../hooks/useBulkUploader";
+import { useBulkUploader } from "../hooks/useBulkUploader"; // Import hook and types
 
-export const Upload = () => {
+export default function Upload() {
   const navigate = useNavigate();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [uploaderName, setUploaderName] = useState<string>("");
-  const [caption, setCaption] = useState<string>("");
-  const [showSuccess, setShowSuccess] = useState<boolean>(false);
+  const [uploaderName, setUploaderName] = useState("");
+  const [caption, setCaption] = useState("");
+  const [showSuccess, setShowSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { uploads, uploadFiles, cancelUploads, initializeUploads } = useBulkUploader();
-
-  const isUploading = uploads.some(upload => upload.status === 'uploading' || upload.status === 'pending');
-  const isUploadComplete = uploads.length > 0 && uploads.every(upload => upload.status !== 'pending' && upload.status !== 'uploading' && upload.status !== 'error');
-  const hasUploadErrors = uploads.some(upload => upload.status === 'error');
+  const { uploads, uploadFiles } = useBulkUploader(); // Use the hook
 
   const handleFileSelect = (files: FileList | null) => {
-    if (!files) return;
-    
-    const validFiles = Array.from(files).filter((file) => {
+    const validFiles = Array.from(files || []).filter(file => {
       const isImage = file.type.startsWith('image/');
       const isVideo = file.type.startsWith('video/');
       return isImage || isVideo;
     });
     
     setSelectedFiles(validFiles);
-    initializeUploads(validFiles);
-    cancelUploads();
   };
 
   const removeFile = (index: number) => {
@@ -45,37 +37,43 @@ export const Upload = () => {
   };
 
   const handleUpload = async () => {
-    if (selectedFiles.length === 0 || isUploading) return;
+    if (selectedFiles.length === 0) return;
     
+    // Use the uploadFiles function from the hook, passing metadata
+    // The hook will manage the upload process and call WeddingMedia.create internally after S3 upload
     await uploadFiles(selectedFiles, uploaderName, caption);
+      
+    // Success animation and navigation will be triggered by the useEffect based on uploads state
   };
 
-  useEffect(() => {
-    if (isUploadComplete && !hasUploadErrors) {
-      setShowSuccess(true);
+  // Determine if currently uploading based on the hook's state
+  const isUploading = uploads.some(upload => upload.status === 'uploading' || upload.status === 'pending'); // Include pending state
+  
+  // Automatically show success animation and navigate after all uploads are done and successful
+  React.useEffect(() => {
+    // Determine if all uploads are successful to show success animation
+    const allUploadsSuccessful = uploads.length > 0 && uploads.every(upload => upload.status === 'success');
+    const anyUploadFailed = uploads.some(upload => upload.status === 'error');
 
+    if (allUploadsSuccessful) {
+      setShowSuccess(true);
       setTimeout(() => {
         setSelectedFiles([]);
-        setUploaderName("");
-        setCaption("");
+        setUploaderName(""); // Reset uploader name
+        setCaption(""); // Reset caption
         setShowSuccess(false);
+        navigate(createPageUrl("Gallery")); // Navigate to gallery after success
       }, 2500);
-    } else if (hasUploadErrors) {
-      console.error("Bulk upload finished with errors.", uploads.filter(u => u.status === 'error'));
+    }
+    // We also need to consider the error state - if any upload fails, don't navigate
+    if (anyUploadFailed) {
+      // Handle error state if necessary, maybe show a global error message
+      console.error("One or more uploads failed.", uploads.filter(upload => upload.status === 'error'));
+      // Optionally reset uploads or show a retry option
     }
 
-    if (uploads.length === 0 && selectedFiles.length > 0 && !isUploading) {
-      setSelectedFiles([]);
-    }
-  }, [isUploadComplete, hasUploadErrors, uploads.length]);
+  }, [uploads, navigate]); // Added uploads to dependencies, removed anyUploadFailed
 
-  useEffect(() => {
-    if(uploads.length === 0 && selectedFiles.length > 0 && !isUploading) {
-      setSelectedFiles([]);
-      setUploaderName("");
-      setCaption("");
-    }
-  }, [uploads.length]);
 
   return (
     <div className="min-h-screen wedding-gradient">
@@ -95,7 +93,7 @@ export const Upload = () => {
             <ArrowRight className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-emerald-700 from-emerald-700 to-gold-400 bg-clip-text">
+            <h1 className="text-3xl font-bold from-emerald-700 to-gold-400 bg-clip-text text-emerald-700">
               שתפו את הזיכרון שלכם
             </h1>
             <p className="text-gray-600 mt-1">
@@ -121,8 +119,8 @@ export const Upload = () => {
               />
             </div>
 
-            {/* File Preview */}
-            {uploads.length > 0 && (
+            {/* File Preview - Use selectedFiles for initial preview, uploads for status/progress if needed in preview items */}
+            {selectedFiles.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -130,17 +128,20 @@ export const Upload = () => {
               >
                 <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                   <Heart className="w-5 h-5 text-emerald-600" />
-                  קבצים שנבחרו ({uploads.length})
+                  קבצים שנבחרו ({selectedFiles.length})
                 </h3>
+                {/* Pass selectedFiles to preview component as it expects File objects for previewing */}
                 <UploadPreview 
-                  uploads={uploads}
+                  files={selectedFiles}
                   onRemove={removeFile}
+                  // If UploadPreview needs to show progress/status, it would need to be updated to accept 'uploads' alongside 'files'
+                  // or map 'selectedFiles' to the corresponding 'uploads' state within the component.
                 />
               </motion.div>
             )}
 
             {/* Details Form */}
-            {uploads.length > 0 && !isUploadComplete && (
+            {selectedFiles.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -178,7 +179,7 @@ export const Upload = () => {
 
                 <Button
                   onClick={handleUpload}
-                  disabled={isUploading || uploads.length === 0}
+                  disabled={isUploading || selectedFiles.length === 0}
                   className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
                 >
                   {isUploading ? (
@@ -187,48 +188,11 @@ export const Upload = () => {
                       מעלה את הזיכרון שלכם...
                     </div>
                   ) : (
-                    `שתפו ${uploads.length} ${uploads.length === 1 ? 'זיכרון' : 'זכרונות'}`
+                    `שתפו ${selectedFiles.length} ${selectedFiles.length === 1 ? 'זיכרון' : 'זכרונות'}`
                   )}
                 </Button>
-
-                {isUploading && (
-                   <Button
-                      onClick={cancelUploads}
-                      variant="outline"
-                      className="w-full border-red-500 text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors duration-300"
-                   >
-                      בטל העלאות
-                   </Button>
-                )}
-
               </motion.div>
             )}
-
-            {hasUploadErrors && (
-               <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                   className="glass-effect rounded-3xl p-6 border border-red-400 bg-red-50 text-red-800 space-y-2"
-               >
-                   <h3 className="text-lg font-semibold">שגיאות בהעלאה</h3>
-                   {uploads.filter(u => u.status === 'error').map((upload, index) => (
-                      <p key={index} className="text-sm">{upload.file.name}: {upload.error || 'שגיאה לא ידועה'}</p>
-                   ))}
-                   <Button
-                       onClick={() => {
-                          cancelUploads();
-                          setSelectedFiles([]);
-                          setUploaderName("");
-                          setCaption("");
-                       }}
-                       variant="ghost"
-                       className="text-red-800 hover:bg-red-100"
-                   >
-                       נקה שגיאות
-                   </Button>
-               </motion.div>
-            )}
-
           </motion.div>
         )}
       </div>
