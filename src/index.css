@@ -1,11 +1,60 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
 @font-face {
   font-family: SuezOne;
   src: url('./assets/fonts/SuezOne-Regular.ttf');
 }
 
 :root {
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --cream-50: #fefdf8;
+  --cream-100: #fef7e7;
+  --cream-200: #fdecc8;
+  --cream-300: #fbd997;
+  --gold-50: #fffbeb;
+  --gold-100: #fef3c7;
+  --gold-200: #fde68a;
+  --gold-300: #fcd34d;
+  --gold-400: #fbbf24;
+  --emerald-50: #ecfdf5;
+  --emerald-100: #d1fae5;
+  --emerald-600: #059669;
+  --emerald-700: #047857;
+}
+
+.bg-cream-50 { background-color: var(--cream-50); }
+.bg-cream-100 { background-color: var(--cream-100); }
+.bg-gold-50 { background-color: var(--gold-50); }
+.bg-gold-100 { background-color: var(--gold-100); }
+.bg-gold-200 { background-color: var(--gold-200); }
+.text-gold-400 { color: var(--gold-400); }
+.text-emerald-600 { color: var(--emerald-600); }
+.text-emerald-700 { color: var(--emerald-700); }
+.border-gold-200 { border-color: var(--gold-200); }
+.border-cream-200 { border-color: var(--cream-200); }
+
+.glass-effect {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.wedding-gradient {
+  background: linear-gradient(135deg, var(--cream-50) 0%, var(--gold-50) 50%, var(--emerald-50) 100%);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.float-animation {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* RTL Font Support */
+* {
+  font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif, 'Arial Hebrew', 'Noto Sans Hebrew';
 }

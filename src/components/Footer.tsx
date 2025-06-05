@@ -1,26 +1,17 @@
-import styled from 'styled-components';
+import React from 'react';
 
-const FooterWrapper = styled.footer`
-  text-align: center;
-  padding: 1rem;
-  font-size: 18px;
-  color: ${({ theme }) => theme.colors.secondaryText};
-  margin-top: 2rem;
-
-  a {
-    color: ${({ theme }) => theme.colors.buttonText};
-    text-decoration: none;
-    font-weight: bold;
-  }
-`;
-
-export const Footer = () => (
-  <FooterWrapper>
+export const Footer: React.FC = () => (
+  <footer className="text-center py-4 text-lg text-gray-600 mt-8">
     האתר נבנה באהבה על ידי{' '}
-    <a href="https://idanlevian.com" target="_blank" rel="noopener noreferrer">
+    <a
+      href="https://idanlevian.com"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-emerald-600 font-bold no-underline hover:text-emerald-700 transition-colors"
+    >
       עידן לויאן
     </a>
     <br />
     © 2025 כל הזכויות שמורות.
-  </FooterWrapper>
+  </footer>
 );
