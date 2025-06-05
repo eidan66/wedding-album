@@ -114,7 +114,6 @@ export default function Upload() {
             <div className="glass-effect rounded-3xl p-8 border border-gold-200">
               <UploadZone
                 onFileSelect={handleFileSelect}
-                selectedFiles={selectedFiles}
                 fileInputRef={fileInputRef}
               />
             </div>

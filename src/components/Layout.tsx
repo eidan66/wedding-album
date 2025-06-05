@@ -3,6 +3,7 @@ import { Link, useLocation, Outlet } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Heart, Camera, Upload } from "lucide-react";
 import { motion } from "framer-motion";
+import { Footer } from "./Footer";
 
 interface LayoutProps {
   children?: React.ReactNode; // Make children optional
@@ -66,6 +67,9 @@ export default function Layout({ children }: LayoutProps) {
         {children}
         <Outlet /> {/* This will render the nested routes */}
       </main>
+
+      {/* Footer */}
+      <Footer />
 
       {/* Mobile Navigation */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 glass-effect border-t border-gold-200 p-4">

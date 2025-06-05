@@ -38,7 +38,6 @@ export const Gallery = () => {
     try {
       // Pass page and limit to the list function
       const fetchedMedia = await WeddingMedia.list("-created_date", pageToLoad, ITEMS_PER_PAGE);
-      console.log("Fetched media items with details (Page", pageToLoad, "):", fetchedMedia);
       
       if (pageToLoad === 1) {
         setMedia(fetchedMedia);
@@ -79,7 +78,6 @@ export const Gallery = () => {
       const target = entities[0];
       // Check if target exists and is intersecting
       if (target && target.isIntersecting && hasMore && !isLoadingInitial && !isLoadingMore) {
-        console.log("Loading more media...");
         fetchMedia(page + 1);
       }
     }, options);
@@ -99,7 +97,6 @@ export const Gallery = () => {
 
   // Filtering logic remains the same, but it now filters the accumulating 'media' state
   const filteredMedia = media.filter(item => {
-    // console.log("Value of media before filter:", media); // Keep or remove this log as needed
     if (activeFilter === "all") return true;
     return item.media_type === activeFilter;
   });

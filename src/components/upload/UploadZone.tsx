@@ -2,28 +2,37 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Upload, Camera, Image, Video, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import type { RefObject, DragEvent, ChangeEvent } from 'react';
 
-export default function UploadZone({ onFileSelect, selectedFiles, fileInputRef }) {
+interface UploadZoneProps {
+  onFileSelect: (files: FileList | null) => void;
+  fileInputRef: RefObject<HTMLInputElement | null>;
+}
+
+export default function UploadZone({
+  onFileSelect,
+  fileInputRef,
+}: UploadZoneProps) {
   const [isDragging, setIsDragging] = useState(false);
 
-  const handleDragOver = (e) => {
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(true);
   };
 
-  const handleDragLeave = (e) => {
+  const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(false);
   };
 
-  const handleDrop = (e) => {
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(false);
     const files = e.dataTransfer.files;
     onFileSelect(files);
   };
 
-  const handleFileSelect = (e) => {
+  const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
     onFileSelect(e.target.files);
   };
 
@@ -89,7 +98,7 @@ export default function UploadZone({ onFileSelect, selectedFiles, fileInputRef }
               <Upload className="w-4 h-4 ml-2" />
               בחרו קבצים
             </Button>
-            
+
             <Button
               variant="outline"
               onClick={() => {

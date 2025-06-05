@@ -13,6 +13,23 @@ export interface WeddingMediaItem extends WeddingMediaCreateParams {
   created_date: string;
 }
 
+// Define the expected structure of the album response from the API
+interface AlbumResponse {
+  items: Array<{ // Assuming the response has an 'items' array
+    id: string;
+    url: string; // The API seems to use 'url' instead of 'media_url'
+    type: 'image' | 'video'; // The API seems to use 'image' instead of 'photo'
+    title?: string;
+    uploader_name: string;
+    created_date: string;
+    thumbnail_url?: string;
+  }>;
+  // Add other potential fields from the API response here if needed, e.g., pagination info
+  total_items?: number;
+  total_pages?: number;
+  current_page?: number;
+}
+
 export const WeddingMedia = {
   name: "WeddingMedia",
   type: "object",
