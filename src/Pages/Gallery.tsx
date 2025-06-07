@@ -138,7 +138,7 @@ export const Gallery = () => {
           />
           
           <Link to={createPageUrl("Upload")}>
-            <Button className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 group">
+            <Button className="hidden sm:inline-flex bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 group">
               <Plus className="w-4 h-4 ml-2 group-hover:rotate-90 transition-transform duration-300" />
               שתפו את הזיכרון שלכם
             </Button>
