@@ -51,7 +51,7 @@ export default function Layout({ children }: LayoutProps) {
                 }`}
               >
                 <Camera className="w-4 h-4" />
-                <span className="font-medium">הגלריה</span>
+                <span className="text-sm md:font-medium">הגלריה</span>
               </Link>
               <Link 
                 to={createPageUrl("Upload")}
@@ -62,7 +62,7 @@ export default function Layout({ children }: LayoutProps) {
                 }`}
               >
                 <Upload className="w-4 h-4" />
-                <span className="font-medium">שיתוף זיכרון</span>
+                <span className="text-sm md:font-medium">שיתוף זיכרון</span>
               </Link>
             </nav>
           </div>
@@ -79,7 +79,7 @@ export default function Layout({ children }: LayoutProps) {
       <Footer />
 
       {/* Share FAB for mobile */}
-      <ShareFAB />
+      {location.pathname !== createPageUrl("Upload") && <ShareFAB />}
     </div>
   );
 }
