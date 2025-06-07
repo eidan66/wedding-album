@@ -79,12 +79,12 @@ export default function Upload() {
 
   return (
     <div className="min-h-screen wedding-gradient">
-      <div className="max-w-4xl mx-auto px-4 py-8 pb-24 md:pb-8">
+      <div className="max-w-4xl mx-auto px-2 md:px-4 py-8 pb-24 md:pb-8">
         {/* Header */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-4 mb-8"
+          className="flex items-center gap-2 sm:gap-4 mb-8"
         >
           <Button
             variant="ghost"
@@ -95,10 +95,10 @@ export default function Upload() {
             <ArrowRight className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold from-emerald-700 to-gold-400 bg-clip-text text-emerald-700">
+            <h1 className="text-lg md:text-3xl font-bold from-emerald-700 to-gold-400 bg-clip-text text-emerald-700">
               שתפו את הזיכרון שלכם
             </h1>
-            <p className="text-gray-600 mt-1">
+            <p className="text-sm md:text-base text-gray-600 mt-1">
               עזרו לנו לתפוס כל רגע יפה מהיום המיוחד הזה
             </p>
           </div>
