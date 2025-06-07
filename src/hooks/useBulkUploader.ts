@@ -97,9 +97,9 @@ export const useBulkUploader = () => {
                 // 3. Create media item in backend after S3 upload succeeds
                 console.time(`Upload file ${file.name}: Create media item`);
                 const mediaParams = {
-                  title: caption || "",
+                  title: caption || "אנונימי",
                   media_url: url.split('?')[0],
-                  media_type: (file.type.startsWith('image/') ? 'photo' : 'video') as WeddingMediaItem['media_type'],
+                  media_type: (file.type.startsWith('image/') ? 'image' : 'video') as WeddingMediaItem['media_type'],
                   uploader_name: uploaderName || "אורח אנונימי"
                 };
                 const createdMedia = await WeddingMedia.create(mediaParams);

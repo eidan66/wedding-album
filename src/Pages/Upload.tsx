@@ -23,13 +23,15 @@ export default function Upload() {
   const { uploads, uploadFiles } = useBulkUploader(); // Use the hook
 
   const handleFileSelect = (files: FileList | null) => {
-    const validFiles = Array.from(files || []).filter(file => {
+    if (!files) return;
+    
+    const validFiles = Array.from(files).filter(file => {
       const isImage = file.type.startsWith('image/');
       const isVideo = file.type.startsWith('video/');
       return isImage || isVideo;
     });
     
-    setSelectedFiles(validFiles);
+    setSelectedFiles(prev => [...prev, ...validFiles]);
   };
 
   const removeFile = (index: number) => {
