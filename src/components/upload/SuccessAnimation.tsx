@@ -56,7 +56,7 @@ export default function SuccessAnimation() {
         className="space-y-4"
       >
         <h2 className="text-3xl font-bold bg-gradient-to-r from-emerald-700 to-emerald-600 bg-clip-text text-transparent">
-          הזיכרון נשתף בהצלחה!
+          הזיכרון שותף בהצלחה!
         </h2>
         <p className="text-gray-600 text-lg max-w-md mx-auto">
           תודה שהוספתם לאוסף היפה של זכרונות החתונה שלנו. 
