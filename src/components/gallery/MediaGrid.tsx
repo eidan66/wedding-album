@@ -61,7 +61,7 @@ export default function MediaGrid({ media, onMediaClick }: MediaGridProps) {
               {item.uploader_name && (
                 <div className="flex items-center gap-2 text-xs opacity-90">
                   <User className="w-3 h-3" />
-                  <span>by {item.uploader_name}</span>
+                  <span>על ידי {item.uploader_name}</span>
                 </div>
               )}
             </div>
