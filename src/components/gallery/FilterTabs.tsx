@@ -35,7 +35,7 @@ export default function FilterTabs({ activeFilter, onFilterChange, media }: Filt
   ];
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
       {filters.map((filter) => (
         <motion.button
           key={filter.id}
@@ -46,7 +46,11 @@ export default function FilterTabs({ activeFilter, onFilterChange, media }: Filt
             activeFilter === filter.id
               ? 'bg-gradient-to-r from-emerald-600 to-emerald-700 text-white shadow-lg'
               : 'bg-white/70 text-gray-700 hover:bg-gold-100 border border-gold-200'
-          }`}
+          } ${
+            filter.id === 'all' 
+              ? 'w-full sm:w-auto' 
+              : 'w-[calc(50%-0.25rem)] sm:w-auto'
+          } justify-center sm:justify-start`}
         >
           <filter.icon className="w-4 h-4" />
           <span>{filter.label}</span>
