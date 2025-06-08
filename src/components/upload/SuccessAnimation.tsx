@@ -1,7 +1,16 @@
 import { motion } from "framer-motion";
 import { CheckCircle, Heart, Sparkles } from "lucide-react";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 export default function SuccessAnimation() {
+  const location = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.8 }}
@@ -56,11 +65,10 @@ export default function SuccessAnimation() {
         className="space-y-4"
       >
         <h2 className="text-3xl font-bold bg-gradient-to-r from-emerald-700 to-emerald-600 bg-clip-text text-transparent">
-          הזיכרון שותף בהצלחה!
+          תודה ששיתפתם אותנו!
         </h2>
         <p className="text-gray-600 text-lg max-w-md mx-auto">
-          תודה שהוספתם לאוסף היפה של זכרונות החתונה שלנו. 
-          התמונות והסרטונים שלכם הם עכשיו חלק מהסיפור הנצחי שלנו! 💕
+          תודה רבה שבאתם לרגש אותנו ביום המיוחד הזה! הזיכרונות שלכם עושים לנו את היום! ❤️
         </p>
         
         <motion.div

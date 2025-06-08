@@ -37,18 +37,26 @@ export const Gallery = () => {
     
     try {
       // Pass page and limit to the list function
-      const fetchedMedia = await WeddingMedia.list("-created_date", pageToLoad, ITEMS_PER_PAGE);
+      const data = await WeddingMedia.list("-created_date", pageToLoad, ITEMS_PER_PAGE);
+      
+      const mappedMedia: WeddingMediaItem[] = data.items.map(item => ({
+        id: item.id,
+        media_url: item.url,
+        media_type: item.type === 'image' ? 'photo' : 'video',
+        title: item.title || '',
+        uploader_name: item.uploader_name || 'אורח אנונימי',
+        created_date: item.created_date || new Date().toISOString(),
+        thumbnail_url: item.thumbnail_url,
+      }));
       
       if (pageToLoad === 1) {
-        setMedia(fetchedMedia);
+        setMedia(mappedMedia);
       } else {
-        setMedia(prevMedia => [...prevMedia, ...fetchedMedia]);
+        setMedia(prevMedia => [...prevMedia, ...mappedMedia]);
       }
 
-      // Determine if there are more items based on the number of items fetched
-      // The server should ideally return a total count or a 'hasMore' flag.
-      // For now, assuming if we get less than ITEMS_PER_PAGE, there are no more.
-      setHasMore(fetchedMedia.length === ITEMS_PER_PAGE);
+      // Determine if there are more items based on the total items and current page/limit
+      setHasMore(media.length + mappedMedia.length < (data.total_items ?? 0));
       setPage(pageToLoad);
 
     } catch (error) {
@@ -158,7 +166,7 @@ export const Gallery = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-center py-16"
+              className="text-center py-0"
             >
               <div className="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-gold-100 to-cream-100 rounded-full flex items-center justify-center">
                 <Heart className="w-16 h-16 text-gold-400" />

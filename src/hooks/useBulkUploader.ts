@@ -63,6 +63,8 @@ export const useBulkUploader = () => {
             filename: file.name,
             filetype: file.type,
             filesize: file.size,
+            title: caption || "",
+            uploaderName: uploaderName || ""
           }),
           signal: controller.signal,
         });

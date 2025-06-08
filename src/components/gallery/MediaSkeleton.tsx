@@ -5,9 +5,9 @@ export default function MediaSkeleton() {
 
   return (
     <div className="columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6">
-      {skeletonItems.map((item) => (
+      {skeletonItems.map((item,index) => (
         <motion.div
-          key={item}
+          key={`${item}-${index}`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="break-inside-avoid"
