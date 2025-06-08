@@ -11,6 +11,7 @@ interface WeddingMediaCreateParams {
 export interface WeddingMediaItem extends WeddingMediaCreateParams {
   id: string;
   created_date: string;
+  media_type: 'photo' | 'video';
 }
 
 // Define the expected structure of the album response from the API
@@ -81,7 +82,7 @@ export const WeddingMedia = {
     }
   },
 
-  list: async (sortBy: string = "-created_date", page: number = 1, limit: number = 20): Promise<WeddingMediaItem[]> => {
+  list: async (sortBy: string = "-created_date", page: number = 1, limit: number = 20): Promise<AlbumResponse> => {
     try {
       const response = await fetch(`${API_BASE}/download?sort=${sortBy}&page=${page}&limit=${limit}`, {
         method: 'GET',
@@ -96,15 +97,7 @@ export const WeddingMedia = {
       }
 
       const data: AlbumResponse = await response.json();
-      return data.items.map(item => ({
-        id: item.id,
-        media_url: item.url,
-        media_type: item.type === 'image' ? 'photo' : item.type,
-        title: item.title,
-        uploader_name: item.uploader_name,
-        created_date: item.created_date,
-        thumbnail_url: item.thumbnail_url,
-      }));
+      return data; // Return the full data object
     } catch (error) {
       console.error('Error fetching media items:', error);
       throw error;

@@ -12,7 +12,7 @@ export default function MediaGrid({ media, onMediaClick }: MediaGridProps) {
     <div className="columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6">
       {media.map((item, index) => (
         <motion.div
-          key={item.id}
+          key={`${item.id}-${index}`}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: index * 0.1 }}

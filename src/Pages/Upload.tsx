@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { ArrowRight, Heart } from "lucide-react";
+import { Heart } from "lucide-react";
 import { motion } from "framer-motion";
 
 import UploadZone from "../components/upload/UploadZone";
@@ -65,7 +65,7 @@ export default function Upload() {
         setCaption(""); // Reset caption
         setShowSuccess(false);
         navigate(createPageUrl("Gallery")); // Navigate to gallery after success
-      }, 2500);
+      }, 4500);
     }
     // We also need to consider the error state - if any upload fails, don't navigate
     if (anyUploadFailed) {
@@ -79,30 +79,7 @@ export default function Upload() {
 
   return (
     <div className="min-h-screen wedding-gradient">
-      <div className="max-w-4xl mx-auto px-2 md:px-4 py-8 pb-24 md:pb-8">
-        {/* Header */}
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-2 sm:gap-4 mb-8"
-        >
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate(createPageUrl("Gallery"))}
-            className="hover:bg-gold-100 transition-colors duration-300"
-          >
-            <ArrowRight className="w-5 h-5" />
-          </Button>
-          <div>
-            <h1 className="text-lg md:text-3xl font-bold from-emerald-700 to-gold-400 bg-clip-text text-emerald-700">
-              שתפו את הזיכרון שלכם
-            </h1>
-            <p className="text-sm md:text-base text-gray-600 mt-1">
-              עזרו לנו לתפוס כל רגע יפה מהיום המיוחד הזה
-            </p>
-          </div>
-        </motion.div>
+      <div className="max-w-4xl mx-auto px-2 md:px-4 py-6 pb-24 md:pb-8">
 
         {showSuccess ? (
           <SuccessAnimation />
@@ -113,7 +90,7 @@ export default function Upload() {
             className="space-y-8"
           >
             {/* Upload Zone */}
-            <div className="glass-effect rounded-3xl p-8 border border-gold-200">
+            <div className="glass-effect rounded-3xl p-8 pt-0 border border-gold-200">
               <UploadZone
                 onFileSelect={handleFileSelect}
                 fileInputRef={fileInputRef}

@@ -36,9 +36,9 @@ export default function FilterTabs({ activeFilter, onFilterChange, media }: Filt
 
   return (
     <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
-      {filters.map((filter) => (
+      {filters.map((filter, index) => (
         <motion.button
-          key={filter.id}
+          key={`${filter.id}-${index}`}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => onFilterChange(filter.id)}
