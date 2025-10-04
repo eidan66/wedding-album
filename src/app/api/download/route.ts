@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
     const type = searchParams.get('type'); // 'photo' or 'video'
+    const sort = searchParams.get('sort'); // 'created_date', '-created_date', etc.
 
     // List files from S3 (now includes metadata)
     const allItems = await listUploadedFiles();
@@ -32,6 +33,18 @@ export async function GET(request: NextRequest) {
       } else if (type === 'video') {
         items = allItems.filter(item => item.type === 'video');
       }
+    }
+
+    // Sort items if sort parameter is provided
+    if (sort) {
+      items = items.sort((a, b) => {
+        if (sort === 'created_date' || sort === 'created_date_asc') {
+          return new Date(a.created_date).getTime() - new Date(b.created_date).getTime();
+        } else if (sort === '-created_date' || sort === 'created_date_desc') {
+          return new Date(b.created_date).getTime() - new Date(a.created_date).getTime();
+        }
+        return 0;
+      });
     }
 
     const start = (page - 1) * limit;
