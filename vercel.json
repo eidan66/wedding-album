@@ -1,13 +1,12 @@
 {
-    "$schema": "https://openapi.vercel.sh/vercel.json",
-    "rewrites": [
-      {
-        "source": "/wedding-album/(.*)",
-        "destination": "/$1"
-      },
-      {
-        "source": "/wedding-album",
-        "destination": "/"
-      }
-    ]
-  }
+  "rewrites": [
+    {
+      "source": "/wedding-album/(.*)",
+      "destination": "/$1"
+    },
+    {
+      "source": "/wedding-album",
+      "destination": "/"
+    }
+  ]
+}
