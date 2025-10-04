@@ -1,0 +1,264 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@font-face {
+  font-family: SuezOne;
+  src: url('/fonts/SuezOne-Regular.ttf');
+}
+
+:root {
+  --cream-50: #fefdf8;
+  --cream-100: #fef7e7;
+  --cream-200: #fdecc8;
+  --cream-300: #fbd997;
+  --gold-50: #fffbeb;
+  --gold-100: #fef3c7;
+  --gold-200: #fde68a;
+  --gold-300: #fcd34d;
+  --gold-400: #fbbf24;
+  --emerald-50: #ecfdf5;
+  --emerald-100: #d1fae5;
+  --emerald-600: #059669;
+  --emerald-700: #047857;
+}
+
+/* Dark mode variables */
+.dark {
+  --cream-50: #0f172a;
+  --cream-100: #1e293b;
+  --cream-200: #334155;
+  --cream-300: #475569;
+  --gold-50: #0f172a;
+  --gold-100: #1e293b;
+  --gold-200: #334155;
+  --gold-300: #475569;
+  --gold-400: #fbbf24;
+  --emerald-50: #064e3b;
+  --emerald-100: #065f46;
+  --emerald-600: #10b981;
+  --emerald-700: #059669;
+}
+
+.bg-cream-50 { background-color: var(--cream-50); }
+.bg-cream-100 { background-color: var(--cream-100); }
+.bg-gold-50 { background-color: var(--gold-50); }
+.bg-gold-100 { background-color: var(--gold-100); }
+.bg-gold-200 { background-color: var(--gold-200); }
+.text-gold-400 { color: var(--gold-400); }
+.text-emerald-600 { color: var(--emerald-600); }
+.text-emerald-700 { color: var(--emerald-700); }
+.border-gold-200 { border-color: var(--gold-200); }
+.border-cream-200 { border-color: var(--cream-200); }
+
+/* Dark mode text colors */
+.dark .text-gray-800 { color: #f8fafc; }
+.dark .text-gray-700 { color: #e2e8f0; }
+.dark .text-gray-600 { color: #cbd5e1; }
+.dark .text-gray-500 { color: #94a3b8; }
+
+/* Dark mode specific text colors */
+.dark .text-emerald-700 { color: #10b981; }
+.dark .text-gold-400 { color: #fbbf24; }
+
+/* Dark mode decorative elements - אלמנטים דקורטיביים */
+.dark .text-gold-400 { color: #fbbf24; }
+.dark .text-emerald-400 { color: #34d399; }
+
+/* Dark mode backgrounds */
+.dark .bg-white { background-color: #0f172a; }
+.dark .bg-gray-50 { background-color: #0f172a; }
+.dark .bg-gray-100 { background-color: #1e293b; }
+.dark .bg-gray-200 { background-color: #334155; }
+
+/* Dark mode borders */
+.dark .border-gray-200 { border-color: #334155; }
+.dark .border-gold-200 { border-color: #475569; }
+.dark .border-emerald-300 { border-color: #34d399; }
+.dark .border-emerald-400 { border-color: #4ade80; }
+
+/* Dark mode buttons - צבעים נעימים לכפתורים */
+.dark .bg-gold-200 { background-color: #475569; }
+.dark .bg-gold-300 { background-color: #64748b; }
+.dark .bg-emerald-600 { background-color: #059669; }
+.dark .bg-emerald-700 { background-color: #047857; }
+.dark .hover\:bg-gold-300:hover { background-color: #64748b; }
+.dark .hover\:bg-emerald-700:hover { background-color: #047857; }
+
+/* Dark mode text for buttons */
+.dark .text-gold-800 { color: #f8fafc; }
+.dark .text-emerald-800 { color: #f8fafc; }
+
+/* Dark mode filter tabs - צבעים נעימים לטאבים */
+.dark .bg-gray-100 { background-color: #1e293b; }
+.dark .bg-gray-200 { background-color: #334155; }
+.dark .text-gray-600 { color: #cbd5e1; }
+.dark .text-gray-700 { color: #e2e8f0; }
+.dark .border-gray-300 { border-color: #475569; }
+
+/* Dark mode active states */
+.dark .bg-emerald-500 { background-color: #10b981; }
+.dark .text-white { color: #f8fafc; }
+
+/* Dark mode icon backgrounds - רקעים נעימים לאייקונים */
+.dark .from-gold-100 { --tw-gradient-from: #1e293b; }
+.dark .to-emerald-100 { --tw-gradient-to: #064e3b; }
+.dark .from-emerald-100 { --tw-gradient-from: #064e3b; }
+.dark .to-gold-100 { --tw-gradient-to: #1e293b; }
+
+/* Dark mode icon colors - צבעים נעימים לאייקונים */
+.dark .text-emerald-600 { color: #10b981; }
+.dark .text-gold-400 { color: #fbbf24; }
+
+/* Dark mode toggle specific colors */
+.dark .from-slate-600 { --tw-gradient-from: #475569; }
+.dark .to-slate-700 { --tw-gradient-to: #64748b; }
+.dark .bg-slate-100 { background-color: #f1f5f9; }
+.dark .text-slate-600 { color: #475569; }
+
+/* Clean toggle effects */
+.clean-toggle {
+  transition: all 0.3s ease;
+}
+
+.clean-toggle:hover {
+  transform: scale(1.05);
+}
+
+/* Fancy theme toggle (CodePen-inspired), scoped */
+.theme-toggle-fancy {
+  /* use font-size to scale the whole control consistently */
+  font-size: 20%;
+}
+
+.theme-toggle-fancy .tdnn {
+  cursor: pointer;
+  margin: 0;
+  position: relative;
+  height: 16em;
+  width: 30em;
+  border-radius: 16em;
+  transition: all 400ms ease-in-out;
+  background: #423966; /* night */
+}
+
+.theme-toggle-fancy .tdnn.day {
+  background: #ffbf71; /* day */
+}
+
+.theme-toggle-fancy .moon {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  transition: all 400ms ease-in-out;
+  top: 3em;
+  left: 3em;
+  transform: rotate(-75deg);
+  width: 10em;
+  height: 10em;
+  background: #423966;
+  box-shadow: 3em 2.5em 0 0em #d9fbff inset,
+    rgba(255, 255, 255, 0.1) 0em -7em 0 -4.5em,
+    rgba(255, 255, 255, 0.1) 3em 7em 0 -4.5em,
+    rgba(255, 255, 255, 0.1) 2em 13em 0 -4em,
+    rgba(255, 255, 255, 0.1) 6em 2em 0 -4.1em,
+    rgba(255, 255, 255, 0.1) 8em 8em 0 -4.5em,
+    rgba(255, 255, 255, 0.1) 6em 13em 0 -4.5em,
+    rgba(255, 255, 255, 0.1) -4em 7em 0 -4.5em,
+    rgba(255, 255, 255, 0.1) -1em 10em 0 -4.5em;
+}
+
+.theme-toggle-fancy .moon.sun {
+  top: 4.5em;
+  left: 18em;
+  transform: rotate(0deg);
+  width: 7em;
+  height: 7em;
+  background: #fff;
+  box-shadow: 3em 3em 0 5em #fff inset,
+    0 -5em 0 -2.7em #fff,
+    3.5em -3.5em 0 -3em #fff,
+    5em 0 0 -2.7em #fff,
+    3.5em 3.5em 0 -3em #fff,
+    0 5em 0 -2.7em #fff,
+    -3.5em 3.5em 0 -3em #fff,
+    -5em 0 0 -2.7em #fff,
+    -3.5em -3.5em 0 -3em #fff;
+}
+
+/* RTL support for toggle */
+[dir="rtl"] .theme-toggle {
+  direction: ltr;
+}
+
+/* Ensure toggle positioning works correctly in RTL */
+.theme-toggle {
+  direction: ltr;
+}
+
+/* Dark mode placeholders - צבעים קריאים */
+.dark ::placeholder { color: #94a3b8 !important; }
+.dark ::-webkit-input-placeholder { color: #94a3b8 !important; }
+.dark ::-moz-placeholder { color: #94a3b8 !important; }
+.dark :-ms-input-placeholder { color: #94a3b8 !important; }
+
+/* Dark mode input fields - רקעים וטקסט */
+.dark input, .dark textarea { 
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #475569 !important;
+}
+
+.dark input:focus, .dark textarea:focus {
+  border-color: #10b981 !important;
+  outline-color: #10b981 !important;
+}
+
+.glass-effect {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.dark .glass-effect {
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.wedding-gradient {
+  background: linear-gradient(135deg, var(--cream-50) 0%, var(--gold-50) 50%, var(--emerald-50) 100%);
+}
+
+.dark .wedding-gradient {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #064e3b 100%);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.float-animation {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Shimmer animation for skeleton loaders */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+/* RTL Font Support */
+* {
+  font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif, 'Arial Hebrew', 'Noto Sans Hebrew';
+}

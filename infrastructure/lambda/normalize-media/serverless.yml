@@ -1,0 +1,54 @@
+service: wedding-album-media-processor
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: il-central-1
+  environment:
+    AWS_REGION: il-central-1
+    S3_BUCKET_NAME: ${env:S3_BUCKET_NAME}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:GetObject
+        - s3:PutObject
+        - s3:DeleteObject
+      Resource:
+        - arn:aws:s3:::${env:S3_BUCKET_NAME}/*
+    - Effect: Allow
+      Action:
+        - logs:CreateLogGroup
+        - logs:CreateLogStream
+        - logs:PutLogEvents
+      Resource: "*"
+
+functions:
+  normalizeMedia:
+    handler: dist/index.handler
+    timeout: 120 # 2 minutes (sufficient for most files)
+    memorySize: 2560 # Optimal for FFmpeg performance
+    events:
+      - s3:
+          bucket: ${env:S3_BUCKET_NAME}
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: */raw/
+    layers:
+      - arn:aws:lambda:${env:AWS_REGION, 'us-east-1'}:175033217214:layer:ffmpeg:1
+    environment:
+      S3_BUCKET_NAME: ${env:S3_BUCKET_NAME}
+
+plugins:
+  - serverless-typescript
+
+custom:
+  typescript:
+    webpack: false
+    includeModules: false
+
+package:
+  exclude:
+    - node_modules/**
+    - test-files/**
+    - *.test.ts
+    - local-test.ts
