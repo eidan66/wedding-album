@@ -4,7 +4,7 @@ import * as Sentry from '@sentry/nextjs';
 // CORS headers
 const corsHeaders = {
   'Access-Control-Allow-Origin': process.env.NODE_ENV === 'production' 
-    ? process.env.NEXT_PUBLIC_APP_URL || 'https://wedding-sapir-idan.vercel.app'
+    ? process.env.NEXT_PUBLIC_APP_URL || 'https://idanlevian.com/wedding-album'
     : '*',
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',

@@ -1,18 +1,3 @@
 {
-    "$schema": "https://openapi.vercel.sh/vercel.json",
-    "builds": [
-      { "src": "package.json", "use": "@vercel/static-build", "config": { "distDir": "dist" } }
-    ],
-    "rewrites": [
-      {
-        "source": "/wedding-album/assets/:path*",
-        "destination": "/assets/:path*"
-      },
-      {
-        "source": "/wedding-album/:path*",
-        "destination": "/index.html"
-      }
-    ],
-    "cleanUrls": false,
-    "trailingSlash": false
-  }
+  "framework": "nextjs"
+}
