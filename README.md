@@ -1,77 +1,36 @@
-# 💍 Wedding Album — React + TypeScript + Vite
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-A mobile-first web app built with React, Vite, and Styled Components that allows wedding guests to upload their photos and videos directly to a live album via QR code scanning.
+## Getting Started
 
----
-
-## 🛠️ Tech Stack
-
-- **React 19** + **TypeScript**
-- **Vite** for super fast bundling
-- **Styled Components** for scoped styling and themes
-- **Custom Modal System** for media confirmation
-- **File Upload** supporting images and videos (MP4, WebM, MOV)
-- **RTL Support** with full Hebrew layout
-- **Mobile-first responsive design**
-
----
-
-## 📁 Folder Structure
-
-```
-.
-├── public/                # Static assets
-├── src/
-│   ├── assets/           # Images, SVGs
-│   ├── components/       # Hero, Modal, PhotoGrid etc.
-│   ├── styles/           # Global styles + theme
-│   ├── App.tsx           # Root component
-│   └── main.tsx          # Entry point
-├── index.html
-├── vite.config.ts
-└── tsconfig.app.json
-```
-
----
-
-## 🚀 Getting Started
+First, run the development server:
 
 ```bash
-# Install dependencies
-yarn install
-
-# Run locally
+npm run dev
+# or
 yarn dev
-
-# Build for production
-yarn build
+# or
+pnpm dev
+# or
+bun dev
 ```
 
----
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## 🌈 Theming
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-We support a single theme called `sageTheme` (inspired by cream & sage tones).
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
----
+## Learn More
 
-## 🖼️ Upload Flow
+To learn more about Next.js, take a look at the following resources:
 
-1. User clicks on “שתפו תמונות”
-2. Can choose multiple files (images or videos)
-3. Modal shows previews with "X" to remove individual items
-4. After confirmation, a heart-loader animates while uploading
-5. Items are added to the photo grid below
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
----
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## ✅ To Do
+## Deploy on Vercel
 
-- [ ] Backend integration for file uploads
-- [ ] Real-time photo gallery updates
-- [ ] Admin moderation panel
-- [ ] Download full album feature
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
----
-
-## ❤️ Created by [Idan Levian](https://idanlevian.com)
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

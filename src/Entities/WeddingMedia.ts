@@ -1,4 +1,4 @@
-import { API_BASE } from '@/config';
+import { apiServices } from '@/services/api';
 
 interface WeddingMediaCreateParams {
   title?: string;
@@ -59,23 +59,10 @@ export const WeddingMedia = {
   },
   required: ["media_url", "media_type"],
 
-  // Methods
+  // Methods - Updated to use new API services
   create: async (params: WeddingMediaCreateParams): Promise<WeddingMediaItem> => {
     try {
-      const response = await fetch(`${API_BASE}/media`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(params),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create media item');
-      }
-
-      return await response.json();
+      return await apiServices.media.createMedia(params);
     } catch (error) {
       console.error('Error creating media item:', error);
       throw error;
@@ -84,20 +71,11 @@ export const WeddingMedia = {
 
   list: async (sortBy: string = "-created_date", page: number = 1, limit: number = 20): Promise<AlbumResponse> => {
     try {
-      const response = await fetch(`${API_BASE}/download?sort=${sortBy}&page=${page}&limit=${limit}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch media items');
-      }
-
-      const data: AlbumResponse = await response.json();
-      return data; // Return the full data object
+      return await apiServices.media.getMediaList({
+        sort: sortBy,
+        page,
+        limit,
+      }) as AlbumResponse;
     } catch (error) {
       console.error('Error fetching media items:', error);
       throw error;

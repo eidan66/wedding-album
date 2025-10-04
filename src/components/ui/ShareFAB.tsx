@@ -1,7 +1,8 @@
+"use client";
 import { Plus } from "lucide-react";
-import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export function ShareFAB() {
   return (
@@ -11,7 +12,7 @@ export function ShareFAB() {
       whileTap={{ scale: 0.95 }}
     >
       <Link
-        to={createPageUrl("Upload")}
+        href={createPageUrl("Upload")}
         className="flex items-center justify-center w-14 h-14 rounded-full
                    bg-gradient-to-r from-emerald-600 to-emerald-700 text-white
                    shadow-lg hover:shadow-xl transition-all duration-300"
