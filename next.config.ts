@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 import { withSentryConfig } from '@sentry/nextjs';
 
 const nextConfig: NextConfig = {
+  basePath: process.env.NODE_ENV === 'production' ? '/wedding-album' : '',
   images: {
     remotePatterns: [
       {
@@ -38,7 +39,7 @@ const nextConfig: NextConfig = {
           {
             key: 'Access-Control-Allow-Origin',
             value: process.env.NODE_ENV === 'production' 
-              ? process.env.NEXT_PUBLIC_APP_URL || 'https://wedding-sapir-idan.vercel.app'
+              ? process.env.NEXT_PUBLIC_APP_URL || 'https://idanlevian.com/wedding-album'
               : '*',
           },
           {

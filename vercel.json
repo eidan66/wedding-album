@@ -1,18 +1,13 @@
 {
     "$schema": "https://openapi.vercel.sh/vercel.json",
-    "builds": [
-      { "src": "package.json", "use": "@vercel/static-build", "config": { "distDir": "dist" } }
-    ],
     "rewrites": [
       {
-        "source": "/wedding-album/assets/:path*",
-        "destination": "/assets/:path*"
+        "source": "/wedding-album/(.*)",
+        "destination": "/$1"
       },
       {
-        "source": "/wedding-album/:path*",
-        "destination": "/index.html"
+        "source": "/wedding-album",
+        "destination": "/"
       }
-    ],
-    "cleanUrls": false,
-    "trailingSlash": false
+    ]
   }
