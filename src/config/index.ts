@@ -3,7 +3,9 @@ export const API_CONFIG = {
   // Base URL configuration
   BASE_URL: process.env.NEXT_PUBLIC_API_BASE && !process.env.NEXT_PUBLIC_API_BASE.includes('localhost') 
     ? `${process.env.NEXT_PUBLIC_API_BASE}/api` 
-    : '/api',
+    : process.env.NODE_ENV === 'production' 
+      ? '/wedding-album/api'
+      : '/api',
   
   // Request configuration
   TIMEOUT: 30000, // 30 seconds
