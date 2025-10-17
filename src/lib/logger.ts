@@ -84,18 +84,24 @@ class Logger {
   }
 
   info(message: string, context?: LogContext): void {
-    this.logToConsole();
-    this.logToSentry(LogLevel.INFO, message, context);
+    // Disabled to prevent Sentry rate limiting
+    if (this.isDevelopment) {
+      console.log(`[INFO] ${message}`, context);
+    }
   }
 
   warn(message: string, context?: LogContext): void {
-    this.logToConsole();
-    this.logToSentry(LogLevel.WARN, message, context);
+    // Disabled to prevent Sentry rate limiting
+    if (this.isDevelopment) {
+      console.warn(`[WARN] ${message}`, context);
+    }
   }
 
   error(message: string, error?: Error, context?: LogContext): void {
-    this.logToConsole();
-    this.logToSentry(LogLevel.ERROR, message, context, error);
+    // Disabled to prevent Sentry rate limiting
+    if (this.isDevelopment) {
+      console.error(`[ERROR] ${message}`, error, context);
+    }
   }
 
   // Specialized logging methods

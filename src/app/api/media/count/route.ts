@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { S3Client, ListObjectsV2Command, ListObjectsV2CommandOutput } from '@aws-sdk/client-s3';
+import { cacheGet, cacheSet, CacheKeys } from '@/lib/redis';
+import { logger } from '@/lib/logger';
 
 const s3 = new S3Client({
   region: process.env.AWS_REGION,
@@ -11,6 +13,9 @@ const s3 = new S3Client({
 
 const VIDEO_EXT = new Set(['.mp4','.mov','.webm','.mkv','.3gp','.hevc','.qt']);
 
+// Cache TTL for media count (10 minutes)
+const MEDIA_COUNT_CACHE_TTL = 10 * 60; // seconds
+
 export async function GET(req: NextRequest) {
   try {
     if (!process.env.S3_BUCKET_NAME) {
@@ -18,6 +23,28 @@ export async function GET(req: NextRequest) {
     }
 
     const type = new URL(req.url).searchParams.get('type');
+
+    // Try to get from cache first
+    const cacheKey = CacheKeys.mediaCount(type || undefined);
+    const cached = await cacheGet<{ total: number; type: string }>(cacheKey);
+    
+    if (cached) {
+      logger.info('Cache hit for media count', { 
+        type,
+        cacheKey,
+        total: cached.total,
+      });
+      return NextResponse.json(cached, {
+        headers: {
+          'X-Cache': 'HIT',
+        },
+      });
+    }
+
+    logger.info('Cache miss for media count, fetching from S3', { 
+      type,
+      cacheKey,
+    });
 
     let continuationToken: string | undefined = undefined;
     let total = 0;
@@ -41,7 +68,21 @@ export async function GET(req: NextRequest) {
       continuationToken = res.IsTruncated ? res.NextContinuationToken : undefined;
     } while (continuationToken);
 
-    return NextResponse.json({ total, type: type ?? 'all' });
+    const response = { total, type: type ?? 'all' };
+
+    // Cache the response
+    await cacheSet(cacheKey, response, { ttl: MEDIA_COUNT_CACHE_TTL });
+    logger.info('Cached media count', { 
+      type,
+      cacheKey,
+      total,
+    });
+
+    return NextResponse.json(response, {
+      headers: {
+        'X-Cache': 'MISS',
+      },
+    });
   } catch (err) {
     console.error('Count error', err);
     return NextResponse.json({ error: 'Failed to count media' }, { status: 500 });

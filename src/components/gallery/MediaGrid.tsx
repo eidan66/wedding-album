@@ -12,12 +12,12 @@ interface MediaGridProps {
 export default function MediaGrid({ media, onMediaClick }: MediaGridProps) {
   return (
     <ResponsiveMasonry
-      columnsCountBreakPoints={{ 350: 1, 700: 2, 1024: 4 }}
+      columnsCountBreakPoints={{ 350: 1, 700: 2, 900: 3, 1200: 4 }}
     >
-      <Masonry gutter="20px">
+      <Masonry gutter="12px">
         {media.map((item, index) => (
           <MediaItemWithSkeleton
-            key={`${item.id}-${index}`}
+            key={item.id}
             item={item}
             index={index}
             onMediaClick={onMediaClick}

@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { listUploadedFiles } from '@/utils/s3';
+import { cacheGet, cacheSet, CacheKeys } from '@/lib/redis';
+import { logger } from '@/lib/logger';
+
+// Cache TTL for media list (5 minutes)
+const MEDIA_LIST_CACHE_TTL = 5 * 60; // seconds
 
 export async function GET(request: NextRequest) {
   try {
@@ -20,7 +25,32 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
     const type = searchParams.get('type'); // 'photo' or 'video'
-    const sort = searchParams.get('sort'); // 'created_date', '-created_date', etc.
+    const sort = searchParams.get('sort') || '-created_date';
+
+    // Try to get from cache first
+    const cacheKey = CacheKeys.mediaList(sort, page, limit, type || undefined);
+    const cached = await cacheGet(cacheKey);
+    
+    if (cached) {
+      logger.info('Cache hit for media list', { 
+        page, 
+        limit, 
+        type,
+        cacheKey,
+      });
+      return NextResponse.json(cached, {
+        headers: {
+          'X-Cache': 'HIT',
+        },
+      });
+    }
+
+    logger.info('Cache miss for media list, fetching from S3', { 
+      page, 
+      limit, 
+      type,
+      cacheKey,
+    });
 
     // List files from S3 (now includes metadata)
     const allItems = await listUploadedFiles();
@@ -28,23 +58,9 @@ export async function GET(request: NextRequest) {
     // Filter by type if specified
     let items = allItems;
     if (type) {
-      if (type === 'photo') {
-        items = allItems.filter(item => item.type === 'image');
-      } else if (type === 'video') {
-        items = allItems.filter(item => item.type === 'video');
-      }
-    }
-
-    // Sort items if sort parameter is provided
-    if (sort) {
-      items = items.sort((a, b) => {
-        if (sort === 'created_date' || sort === 'created_date_asc') {
-          return new Date(a.created_date).getTime() - new Date(b.created_date).getTime();
-        } else if (sort === '-created_date' || sort === 'created_date_desc') {
-          return new Date(b.created_date).getTime() - new Date(a.created_date).getTime();
-        }
-        return 0;
-      });
+      // Convert 'photo' to 'image' for filtering
+      const filterType = type === 'photo' ? 'image' : type;
+      items = allItems.filter(item => item.type === filterType);
     }
 
     const start = (page - 1) * limit;
@@ -54,13 +70,29 @@ export async function GET(request: NextRequest) {
     const total = items.length;
     const hasMore = end < total;
 
-    return NextResponse.json({
+    const response = {
       items: paginated,
       page,
       limit,
       total,
       total_items: total, // match frontend type
       hasMore,
+    };
+
+    // Cache the response
+    await cacheSet(cacheKey, response, { ttl: MEDIA_LIST_CACHE_TTL });
+    logger.info('Cached media list', { 
+      page, 
+      limit, 
+      type,
+      cacheKey,
+      itemsCount: paginated.length,
+    });
+
+    return NextResponse.json(response, {
+      headers: {
+        'X-Cache': 'MISS',
+      },
     });
   } catch (error) {
     console.error('Error listing uploaded files:', error);

@@ -76,7 +76,7 @@ async function processRecord(record: S3EventRecord): Promise<void> {
   
   console.log(`Processing file: ${bucket}/${key}`);
   
-  // Only process files in the raw folder
+  // Only process files in the raw folder - should be wedding-sapir-idan/raw/
   if (!key.includes('/raw/')) {
     console.log(`Skipping file not in raw folder: ${key}`);
     return;
@@ -84,10 +84,11 @@ async function processRecord(record: S3EventRecord): Promise<void> {
 
   try {
     // Extract coupleId and file info
+    // Expected format: wedding-sapir-idan/raw/{uuid}.{ext}
     const pathParts = key.split('/');
-    const coupleId = pathParts[0];
-    const fileName = pathParts[pathParts.length - 1];
-    const fileId = fileName.split('.')[0];
+    const coupleId = pathParts[0]; // Should be "wedding-sapir-idan"
+    const fileName = pathParts[pathParts.length - 1]; // {uuid}.{ext}
+    const fileId = fileName.split('.')[0]; // UUID without extension
     
     console.log(`Processing for couple: ${coupleId}, file: ${fileName}`);
 

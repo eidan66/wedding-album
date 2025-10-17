@@ -13,8 +13,8 @@ export default function GalleryHeader({ mediaCount }: GalleryHeaderProps) {
   const router = useRouter();
 
   useEffect(() => {
-    // Wedding event: October 20, 2025 at 19:30 (Israel time)
-    const weddingDate = new Date('2025-10-20T19:30:00+03:00');
+    // Wedding event: October 20, 2025 at 20:00 (Israel time)
+    const weddingDate = new Date('2025-10-20T20:00:00+03:00');
     const downloadDate = new Date(weddingDate.getTime() + (25 * 60 * 60 * 1000)); // +25 hours
     
     const checkDownloadAvailability = () => {
@@ -42,46 +42,31 @@ export default function GalleryHeader({ mediaCount }: GalleryHeaderProps) {
       className="text-center mb-12"
     >
       <div className="relative">
-        {/* Decorative hearts */}
-        <div className="absolute -top-4 right-1/4 text-gold-400 opacity-30 float-animation">
+        {/* Decorative hearts - Hidden on mobile */}
+        <div className="hidden md:block absolute -top-4 right-1/4 text-gold-400 opacity-30 float-animation">
           <Heart className="w-8 h-8" />
         </div>
-        <div className="absolute -top-2 left-1/3 text-emerald-400 opacity-30 float-animation" style={{ animationDelay: '1s' }}>
+        <div className="hidden md:block absolute -top-2 left-1/3 text-emerald-400 opacity-30 float-animation" style={{ animationDelay: '1s' }}>
           <Heart className="w-6 h-6" />
         </div>
         
-        <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-emerald-700 via-gold-400 to-emerald-600 bg-clip-text text-transparent mb-4">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-emerald-700 via-gold-400 to-emerald-600 bg-clip-text text-transparent mb-4 px-2">
           זכרונות מהחתונה שלנו
         </h1>
-        <p className="text-xl text-gray-600 dark:text-gray-300 mb-6 max-w-2xl mx-auto leading-relaxed">
+        <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-6 max-w-2xl mx-auto leading-relaxed px-4">
           כל חיוך, כל דמעה, כל רגע קסום מהיום המיוחד שלנו, 
           נתפס ומשותף באהבה על ידי המשפחה והחברים היקרים שלנו.
         </p>
         
         {/* Download Info Banner */}
-        <div className="bg-gray-50 dark:bg-gray-800/30 border border-gray-200 dark:border-gray-600 rounded-lg p-3 mb-6 max-w-2xl mx-auto">
+        <div className="bg-gray-50 dark:bg-gray-800/30 border border-gray-200 dark:border-gray-600 rounded-lg p-3 mb-6 max-w-2xl mx-4 md:mx-auto">
           <div className="text-center" dir="rtl">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
               💡 לחיצה על תמונה או סרטון מאפשרת לצפות ולהוריד אותה
             </p>
           </div>
         </div>
         
-        <div className="flex items-center justify-center gap-8 text-sm text-gray-500 dark:text-gray-400">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-r from-gold-100 to-emerald-100 dark:from-gold-900/20 dark:to-emerald-900/20 rounded-full flex items-center justify-center">
-              <Camera className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-            </div>
-            <span className="font-medium">{mediaCount} זכרונות שותפו</span>
-          </div>
-          <div className="hidden md:flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-r from-emerald-100 to-gold-100 dark:from-gold-900/20 dark:to-emerald-900/20 rounded-full flex items-center justify-center">
-              <Users className="w-5 h-5 text-gold-400 dark:text-gold-400" />
-            </div>
-            <span className="font-medium">על ידי האהובים שלנו</span>
-          </div>
-        </div>
-
         {/* Hidden Download Button - Only visible after 25 hours */}
         {showDownloadButton && (
           <motion.div

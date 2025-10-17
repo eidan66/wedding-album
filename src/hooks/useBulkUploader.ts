@@ -421,6 +421,25 @@ export const useBulkUploader = () => {
       uploaderName,
       totalSize: files.reduce((sum, file) => sum + file.size, 0),
     });
+
+    // Invalidate media cache after successful uploads
+    if (successCount > 0) {
+      try {
+        await fetch('/api/cache/invalidate', {
+          method: 'POST',
+        });
+        logger.info('Media cache invalidated after successful uploads', {
+          successCount,
+          totalFiles: files.length,
+        });
+      } catch (error) {
+        logger.warn('Failed to invalidate cache after upload', {
+          error: error instanceof Error ? error.message : String(error),
+          successCount,
+        });
+        // Non-fatal: cache will expire eventually
+      }
+    }
   };
 
   const cancelUploads = () => {

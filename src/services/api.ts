@@ -175,15 +175,38 @@ export class MediaService {
     page?: number;
     limit?: number;
     type?: 'photo' | 'video';
-  } = {}): Promise<PaginatedResponse<unknown>> {
+  } = {}): Promise<PaginatedResponse<WeddingMediaItem>> {
     const stringParams: Record<string, string> = {};
     if (params.sort) stringParams.sort = params.sort;
     if (params.page) stringParams.page = params.page.toString();
     if (params.limit) stringParams.limit = params.limit.toString();
     if (params.type) stringParams.type = params.type;
     
-    const response = await apiClient.get<PaginatedResponse<unknown>>('/download', stringParams);
-    return response.data;
+    const response = await apiClient.get<PaginatedResponse<{
+      id: string;
+      url: string;
+      type: 'image' | 'video';
+      title?: string;
+      uploader_name?: string;
+      created_date?: string;
+      thumbnail_url?: string;
+    }>>('/download', stringParams);
+    
+    // Map API response to WeddingMediaItem format
+    const mappedItems: WeddingMediaItem[] = response.data.items.map((item) => ({
+      id: item.id,
+      media_url: item.url,
+      media_type: item.type === 'image' ? 'photo' : 'video',
+      title: item.title || '',
+      uploader_name: item.uploader_name || 'אורח אנונימי',
+      created_date: item.created_date || new Date().toISOString(),
+      thumbnail_url: item.thumbnail_url,
+    }));
+    
+    return {
+      ...response.data,
+      items: mappedItems,
+    };
   }
 
   // Get media by couple ID
@@ -271,23 +294,31 @@ export class ImageProxyService {
       return originalUrl;
     }
     
-    // If it's an S3 URL, use our proxy
-    if (originalUrl.includes('sapir-and-idan-wedding-albums.s3.il-central-1.amazonaws.com')) {
+    // CRITICAL FIX: Always use proxy for S3/CloudFront URLs
+    // This ensures proper authentication and Range request support
+    // CloudFront may return 403 if not configured with proper Origin Access
+    if (originalUrl.includes('.cloudfront.net') || 
+        originalUrl.includes('sapir-and-idan-wedding-albums.s3.il-central-1.amazonaws.com')) {
       const proxiedUrl = `${API_BASE}/proxy/image?url=${encodeURIComponent(originalUrl)}`;
-      console.log('ImageProxyService: Converting S3 URL to proxy', { 
-        originalUrl, 
-        proxiedUrl,
-        isS3: true 
-      });
+      
+      // Only log in development mode
+      if (process.env.NODE_ENV === 'development') {
+        console.log('ImageProxyService: Proxying URL', { 
+          originalUrl: originalUrl.substring(0, 80) + '...', // Truncate for readability
+          isCloudFront: originalUrl.includes('.cloudfront.net'),
+          isS3: originalUrl.includes('s3.il-central-1.amazonaws.com')
+        });
+      }
       
       Sentry.addBreadcrumb({
-        message: 'ImageProxyService: Converting S3 URL to proxy',
+        message: 'ImageProxyService: Proxying URL for proper auth and streaming',
         category: 'image-proxy',
         level: 'info',
         data: { 
           originalUrl, 
           proxiedUrl,
-          isS3: true 
+          isCloudFront: originalUrl.includes('.cloudfront.net'),
+          isS3: originalUrl.includes('s3.il-central-1.amazonaws.com')
         },
       });
       
@@ -295,10 +326,10 @@ export class ImageProxyService {
     }
     
     // For other URLs, return as is
-    console.log('ImageProxyService: Non-S3 URL, returning as-is', { originalUrl });
+    console.log('ImageProxyService: External URL, returning as-is', { originalUrl });
     
     Sentry.addBreadcrumb({
-      message: 'ImageProxyService: Non-S3 URL, returning as-is',
+      message: 'ImageProxyService: External URL, returning as-is',
       category: 'image-proxy',
       level: 'info',
       data: { originalUrl },

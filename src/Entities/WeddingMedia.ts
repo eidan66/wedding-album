@@ -29,6 +29,7 @@ interface AlbumResponse {
   total_items?: number;
   total_pages?: number;
   current_page?: number;
+  hasMore?: boolean;
 }
 
 export const WeddingMedia = {
@@ -71,11 +72,29 @@ export const WeddingMedia = {
 
   list: async (sortBy: string = "-created_date", page: number = 1, limit: number = 20): Promise<AlbumResponse> => {
     try {
-      return await apiServices.media.getMediaList({
+      const response = await apiServices.media.getMediaList({
         sort: sortBy,
         page,
         limit,
-      }) as AlbumResponse;
+      });
+      
+      // Transform WeddingMediaItem[] to AlbumItem[] format
+      const transformedItems = response.items.map((item: WeddingMediaItem) => ({
+        id: item.id,
+        url: item.media_url,
+        type: (item.media_type === 'photo' ? 'image' : 'video') as 'image' | 'video',
+        created_date: item.created_date,
+        title: item.title,
+        uploader_name: item.uploader_name,
+        thumbnail_url: item.thumbnail_url,
+      }));
+
+      return {
+        items: transformedItems,
+        total_items: response.total_items,
+        total_pages: response.total_pages,
+        hasMore: response.hasMore,
+      };
     } catch (error) {
       console.error('Error fetching media items:', error);
       throw error;
