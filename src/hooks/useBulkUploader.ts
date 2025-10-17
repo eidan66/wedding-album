@@ -172,11 +172,54 @@ async function uploadPutWithRetry(url: string, file: File, idx: number, setUploa
         });
         resolve();
       } else {
-        reject(new Error(`Upload failed (${xhr.status})`));
+        const errorMessage = `Upload failed: ${xhr.status} ${xhr.statusText}`;
+        logger.error(`S3 upload failed with status ${xhr.status}`, new Error(errorMessage), {
+          fileName: file.name,
+          status: xhr.status,
+          statusText: xhr.statusText,
+          responseText: xhr.responseText,
+        });
+        errorLogger.error(errorMessage, {
+          fileName: file.name,
+          status: xhr.status,
+          statusText: xhr.statusText,
+          responseText: xhr.responseText,
+        });
+        reject(new Error(errorMessage));
       }
     };
-    xhr.onerror = () => reject(new Error('Network error during upload'));
-    xhr.ontimeout = () => reject(new Error('Upload timeout'));
+    xhr.onerror = (event) => {
+      const errorMessage = 'Network error - Unable to upload to S3. This may be due to CORS restrictions, network connectivity issues, or S3 bucket configuration.';
+      logger.error('XHR onerror triggered', new Error(errorMessage), {
+        fileName: file.name,
+        fileSize: file.size,
+        readyState: xhr.readyState,
+        status: xhr.status,
+        event,
+      });
+      errorLogger.error(errorMessage, {
+        fileName: file.name,
+        fileSize: file.size,
+        readyState: xhr.readyState,
+        status: xhr.status,
+        hint: 'Check S3 bucket CORS configuration and network connectivity',
+      });
+      reject(new Error(errorMessage));
+    };
+    xhr.ontimeout = () => {
+      const errorMessage = `Upload timeout after ${xhr.timeout}ms. Network might be slow or unstable.`;
+      logger.error('XHR timeout', new Error(errorMessage), {
+        fileName: file.name,
+        fileSize: file.size,
+        timeout: xhr.timeout,
+      });
+      errorLogger.error(errorMessage, {
+        fileName: file.name,
+        fileSize: file.size,
+        timeout: xhr.timeout,
+      });
+      reject(new Error(errorMessage));
+    };
     xhr.send(file);
   });
 

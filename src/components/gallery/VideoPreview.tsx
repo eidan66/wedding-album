@@ -45,16 +45,6 @@ export default function VideoPreview({
   const proxiedPosterUrl = useMemo(() => posterUrl ? apiServices.imageProxy.getProxiedImageUrl(posterUrl) : undefined, [posterUrl]);
 
   useEffect(() => {
-    console.log('VideoPreview: Initializing video', {
-      mp4Url,
-      posterUrl,
-      showControls,
-      autoPlay,
-      fixedAspect,
-      isMobile: isMobile(),
-      isIOS,
-    });
-    
     setHasError(false);
     setIsLoading(false);
     setShowFallback(false);

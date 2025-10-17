@@ -22,17 +22,12 @@ export function useMediaList(params: {
 } = {}) {
   const query = useQuery({
     queryKey: mediaQueryKeys.list(params),
-    queryFn: () => {
-      logger.info('ReactQuery: Fetching media list', { params });
-      return apiServices.media.getMediaList(params);
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    queryFn: () => apiServices.media.getMediaList(params),
+    staleTime: 0, // Always fetch fresh data
     gcTime: 10 * 60 * 1000, // 10 minutes
-    refetchOnWindowFocus: false, // Prevent refetching on window focus
-    refetchOnMount: false, // Prevent refetching on mount
+    refetchOnWindowFocus: true, // Refetch when user returns
+    refetchOnMount: true, // Always refetch on mount
   });
-
-  // Removed logging to prevent infinite loops
 
   return query;
 }
@@ -48,7 +43,6 @@ export function useInfiniteMediaList(params: {
   const query = useInfiniteQuery({
     queryKey: mediaQueryKeys.infiniteList({ sort, limit, type }),
     queryFn: ({ pageParam = 1 }) => {
-      logger.info('ReactQuery: Fetching media list (infinite)', { params: { sort, page: pageParam, limit, type } });
       return apiServices.media.getMediaList({ sort, page: pageParam, limit, type });
     },
     initialPageParam: 1,
@@ -59,10 +53,11 @@ export function useInfiniteMediaList(params: {
       }
       return undefined; // אין עוד דפים
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 0, // ALWAYS consider data stale - fetch fresh every time
     gcTime: 10 * 60 * 1000, // 10 minutes
-    refetchOnWindowFocus: false,
-    refetchOnMount: true, // CRITICAL: Refetch when navigating from upload page
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
+    refetchOnMount: true, // CRITICAL: Always refetch when component mounts
+    refetchOnReconnect: true, // Refetch when network reconnects
   });
 
   return query;
@@ -84,7 +79,8 @@ export function useMediaCount(type?: 'photo' | 'video') {
   return useQuery({
     queryKey: mediaQueryKeys.countByType(type),
     queryFn: () => apiServices.media.getMediaCount(type),
-    staleTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 0, // Always fetch fresh count
+    refetchOnMount: true, // Always refetch on mount
   });
 }
 

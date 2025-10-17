@@ -301,15 +301,6 @@ export class ImageProxyService {
         originalUrl.includes('sapir-and-idan-wedding-albums.s3.il-central-1.amazonaws.com')) {
       const proxiedUrl = `${API_BASE}/proxy/image?url=${encodeURIComponent(originalUrl)}`;
       
-      // Only log in development mode
-      if (process.env.NODE_ENV === 'development') {
-        console.log('ImageProxyService: Proxying URL', { 
-          originalUrl: originalUrl.substring(0, 80) + '...', // Truncate for readability
-          isCloudFront: originalUrl.includes('.cloudfront.net'),
-          isS3: originalUrl.includes('s3.il-central-1.amazonaws.com')
-        });
-      }
-      
       Sentry.addBreadcrumb({
         message: 'ImageProxyService: Proxying URL for proper auth and streaming',
         category: 'image-proxy',

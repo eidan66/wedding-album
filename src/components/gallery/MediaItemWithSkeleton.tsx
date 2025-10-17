@@ -179,10 +179,7 @@ export default function MediaItemWithSkeleton({ item, index, onMediaClick }: Med
                       showControls={false}
                       autoPlay={true}
                       onLoad={handleMediaLoad}
-                      onError={() => {
-                        console.debug('Video failed to load in MediaGrid for item:', item.id);
-                        handleMediaError();
-                      }}
+                      onError={handleMediaError}
                     />
                   ) : (
                     <div className="w-full h-48 bg-gradient-to-br from-gold-100 to-cream-100 animate-pulse flex items-center justify-center">
