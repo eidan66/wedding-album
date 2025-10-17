@@ -3,14 +3,42 @@ import { withSentryConfig } from '@sentry/nextjs';
 
 const nextConfig: NextConfig = {
   basePath: process.env.NODE_ENV === 'production' ? '/wedding-album' : '',
+    // Optimize performance
+    experimental: {
+      optimizePackageImports: ['lucide-react', 'framer-motion'],
+    },
+    
+    // Reduce preload warnings
+    poweredByHeader: false,
+    
+    // Reduce preload warnings by limiting resource hints
+    compiler: {
+      removeConsole: process.env.NODE_ENV === 'production' ? {
+        exclude: ['error', 'warn']
+      } : false,
+    },
   images: {
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'sapir-and-idan-wedding-albums.s3.il-central-1.amazonaws.com',
         port: '',
-        pathname: '/wedding-uploads/**',
+        pathname: '/**',
       },
+      // CloudFront domain - production CDN for better performance
+      {
+        protocol: 'https',
+        hostname: 'd1iqpun8bxb9yi.cloudfront.net',
+        port: '',
+        pathname: '/**', // Support all paths for backwards compatibility
+      },
+      // Fallback: CloudFront domain from environment variable      
+      ...(process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN ? [{
+        protocol: 'https' as const,
+        hostname: process.env.NEXT_PUBLIC_CLOUDFRONT_DOMAIN,
+        port: '',
+        pathname: '/**',
+      }] : []),
       {
         protocol: 'http',
         hostname: 'localhost',

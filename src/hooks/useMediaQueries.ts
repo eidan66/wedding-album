@@ -1,14 +1,13 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiServices } from '@/services/api';
 import { logger } from '@/lib/logger';
-import * as Sentry from '@sentry/nextjs';
 
 // Query Keys - centralized for consistency
 export const mediaQueryKeys = {
   all: ['media'] as const,
   lists: () => [...mediaQueryKeys.all, 'list'] as const,
   list: (filters: Record<string, unknown>) => [...mediaQueryKeys.lists(), filters] as const,
+  infiniteList: (filters: Omit<Record<string, unknown>, 'page'>) => [...mediaQueryKeys.lists(), 'infinite', filters] as const,
   count: () => [...mediaQueryKeys.all, 'count'] as const,
   countByType: (type?: string) => [...mediaQueryKeys.count(), type] as const,
   byCouple: (coupleId: string) => [...mediaQueryKeys.all, 'couple', coupleId] as const,
@@ -28,40 +27,43 @@ export function useMediaList(params: {
       return apiServices.media.getMediaList(params);
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnWindowFocus: false, // Prevent refetching on window focus
+    refetchOnMount: false, // Prevent refetching on mount
   });
 
-  // Log success/error using useEffect
-  useEffect(() => {
-    if (query.data) {
-      logger.info('ReactQuery: Media list fetched successfully', {
-        params,
-        itemCount: query.data?.items?.length || 0,
-        hasMore: query.data?.hasMore,
-      });
-      
-      // Log to Sentry for monitoring
-      Sentry.addBreadcrumb({
-        message: 'ReactQuery: Media list fetched successfully',
-        category: 'react-query',
-        level: 'info',
-        data: {
-          params,
-          itemCount: query.data?.items?.length || 0,
-          hasMore: query.data?.hasMore,
-        },
-      });
-    }
-    if (query.error) {
-      logger.error('ReactQuery: Media list fetch failed', query.error instanceof Error ? query.error : new Error(String(query.error)), { params });
-      
-      // Log error to Sentry
-      Sentry.captureException(query.error instanceof Error ? query.error : new Error(String(query.error)), {
-        tags: { component: 'react-query', hook: 'useMediaList' },
-        extra: { params },
-      });
-    }
-  }, [query.data, query.error, params]);
+  // Removed logging to prevent infinite loops
+
+  return query;
+}
+
+// Infinite Media List Query - המומלץ לשימוש עם infinite scroll
+export function useInfiniteMediaList(params: {
+  sort?: string;
+  limit?: number;
+  type?: 'photo' | 'video';
+} = {}) {
+  const { sort = '-created_date', limit = 50, type } = params;
+  
+  const query = useInfiniteQuery({
+    queryKey: mediaQueryKeys.infiniteList({ sort, limit, type }),
+    queryFn: ({ pageParam = 1 }) => {
+      logger.info('ReactQuery: Fetching media list (infinite)', { params: { sort, page: pageParam, limit, type } });
+      return apiServices.media.getMediaList({ sort, page: pageParam, limit, type });
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      // אם יש עוד דפים, החזר את מספר הדף הבא
+      if (lastPage.hasMore) {
+        return allPages.length + 1;
+      }
+      return undefined; // אין עוד דפים
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  });
 
   return query;
 }

@@ -20,24 +20,35 @@ interface FilterTabsProps {
   totalVideos?: number;
 }
 
+// interface FilterOption {
+//   id: 'all' | 'photo' | 'video';
+//   label: string;
+//   icon: LucideIcon;
+//   count: number;
+// }
 
 export default function FilterTabs({ media, totalAll, totalPhotos, totalVideos }: Omit<FilterTabsProps, 'activeFilter' | 'onFilterChange'>) {
   const photoCount = totalPhotos ?? media.filter(item => item.media_type === 'photo').length;
   const videoCount = totalVideos ?? media.filter(item => item.media_type === 'video').length;
   const allCount = totalAll ?? (photoCount + videoCount);
 
+  // const filters: FilterOption[] = [
+  //   { id: 'all', label: 'כל הזכרונות', icon: Grid3X3, count: allCount },
+  //   { id: 'photo', label: 'תמונות', icon: Camera, count: photoCount },
+  //   { id: 'video', label: 'סרטונים', icon: Video, count: videoCount },
+  // ];
 
   // FILTERS DISABLED - Show only "All" option
   return (
-    <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
+    <div className="flex flex-wrap gap-2 justify-center sm:justify-start w-full sm:w-auto">
       {/* Show only "All" filter - others commented out */}
       <motion.div
-        className="flex items-center gap-2 px-4 py-2 rounded-full font-medium bg-gradient-to-r from-emerald-600 to-emerald-700 text-white shadow-lg border border-white/40 w-full sm:w-auto justify-center sm:justify-start"
+        className="flex items-center gap-2 text-white w-full sm:w-auto justify-center text-base sm:text-lg"
       >
-        <Grid3X3 className="w-4 h-4" />
-        <span>כל הזכרונות</span>
-        <span className="text-xs px-2 py-1 rounded-full bg-white/20 text-white">
-          {allCount}
+        <Grid3X3 className="w-5 h-5" />
+        <span className="font-medium">כל הזכרונות</span>
+        <span className="text-sm text-white/80">
+          ({allCount})
         </span>
       </motion.div>
       

@@ -26,7 +26,7 @@ export default function DownloadPage() {
 
   // Check if enough time has passed since the wedding (25 hours)
   useEffect(() => {
-    const weddingDate = new Date('2025-09-18T20:00:00+03:00');
+    const weddingDate = new Date('2025-10-20T20:00:00+03:00');
     const downloadDate = new Date(weddingDate.getTime() + (25 * 60 * 60 * 1000));
     const now = new Date();
 
@@ -228,11 +228,11 @@ export default function DownloadPage() {
           className="max-w-4xl mx-auto"
         >
           {/* Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-emerald-700 via-gold-400 to-emerald-600 bg-clip-text text-transparent mb-4">
+          <div className="text-center mb-8 sm:mb-12 px-4">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-bold bg-gradient-to-r from-emerald-700 via-gold-400 to-emerald-600 bg-clip-text text-transparent mb-3 sm:mb-4">
               הורדת הזיכרונות שלנו
             </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
               כאן תוכלו להוריד את כל התמונות והסרטונים מהחתונה שלנו באיכות הגבוהה ביותר
             </p>
           </div>
@@ -242,41 +242,41 @@ export default function DownloadPage() {
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 mb-8 border border-gold-200 dark:border-slate-600"
+              className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 mb-8 border border-gold-200 dark:border-slate-600"
             >
               <div className="text-center mb-6">
-                <Lock className="w-16 h-16 text-emerald-700 mx-auto mb-4" />
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">
+                <Lock className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 text-emerald-700 mx-auto mb-3 sm:mb-4" />
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">
                   קוד גישה נדרש
                 </h2>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-4 px-2">
                   אנא הזינו את הקוד שקיבלתם כדי לגשת להורדה
                 </p>
                 
                 {/* Disclaimer */}
-                <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-600 rounded-lg p-3 mb-6">
+                <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-600 rounded-lg p-3 mb-6 mx-2">
                   <div className="text-right" dir="rtl">
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                       💡 רק הזוג יכול להוריד את כל התמונות. אורחים יכולים להוריד תמונות בודדות דרך הגלריה.
                     </p>
                   </div>
                 </div>
               </div>
 
-              <form onSubmit={handleCodeSubmit} className="max-w-sm mx-auto">
+              <form onSubmit={handleCodeSubmit} className="max-w-sm mx-auto px-4">
                 <div className="mb-4">
                   <input
                     type="text"
                     value={accessCode}
                     onChange={(e) => setAccessCode(e.target.value.toUpperCase())}
                     placeholder="הזינו קוד גישה"
-                    className="w-full px-4 py-3 text-center text-lg font-mono border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent dark:bg-slate-700 dark:text-white"
+                    className="w-full px-3 py-2.5 sm:px-4 sm:py-3 text-center text-base sm:text-lg font-mono border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent dark:bg-slate-700 dark:text-white"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={!accessCode.trim()}
-                  className={`w-full py-3 rounded-lg font-semibold transition-all duration-300 ${
+                  className={`w-full py-2.5 sm:py-3 rounded-lg text-sm sm:text-base font-semibold transition-all duration-300 ${
                     !accessCode.trim()
                       ? 'bg-gray-400 cursor-not-allowed text-gray-600'
                       : 'bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white hover:scale-105'
@@ -359,58 +359,58 @@ export default function DownloadPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 border border-gold-200 dark:border-slate-600"
+                className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 border border-gold-200 dark:border-slate-600"
               >
-                <div className="text-center mb-8">
-                  <CheckCircle className="w-16 h-16 text-emerald-500 mx-auto mb-4" />
-                  <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">
+                <div className="text-center mb-6 sm:mb-8">
+                  <CheckCircle className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 text-emerald-500 mx-auto mb-3 sm:mb-4" />
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">
                     גישה אושרה!
                   </h2>
-                  <p className="text-gray-600 dark:text-gray-400">
+                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 px-2">
                     אתם מוכנים להוריד את כל הזיכרונות שלנו
                   </p>
                 </div>
 
                 {/* Download Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                  <div className="text-center p-4 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg border border-emerald-200 dark:border-emerald-600">
-                    <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-300">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8 px-2">
+                  <div className="text-center p-3 sm:p-4 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg border border-emerald-200 dark:border-emerald-600">
+                    <div className="text-xl sm:text-2xl font-bold text-emerald-600 dark:text-emerald-300">
                       {isLoadingFileCount ? (
                         <div className="flex items-center justify-center gap-2">
-                          <Loader2 className="w-6 h-6 animate-spin" />
-                          <span className="text-lg">טוען...</span>
+                          <Loader2 className="w-5 h-5 sm:w-6 sm:h-6 animate-spin" />
+                          <span className="text-base sm:text-lg">טוען...</span>
                         </div>
                       ) : (
                         totalFiles
                       )}
                     </div>
-                    <div className="text-sm text-emerald-600 dark:text-emerald-300">
+                    <div className="text-xs sm:text-sm text-emerald-600 dark:text-emerald-300">
                       {isLoadingFileCount ? 'בודק קבצים...' : 'קבצים זמינים'}
                     </div>
                   </div>
                   
                   {actualDownloadedFiles > 0 && actualDownloadedFiles !== totalFiles && (
-                    <div className="text-center p-4 bg-amber-50 dark:bg-amber-900/30 rounded-lg border border-amber-200 dark:border-amber-600">
-                      <div className="text-2xl font-bold text-amber-600 dark:text-amber-300">
+                    <div className="text-center p-3 sm:p-4 bg-amber-50 dark:bg-amber-900/30 rounded-lg border border-amber-200 dark:border-amber-600">
+                      <div className="text-xl sm:text-2xl font-bold text-amber-600 dark:text-amber-300">
                         {actualDownloadedFiles}
                       </div>
-                      <div className="text-sm text-amber-600 dark:text-amber-300">
+                      <div className="text-xs sm:text-sm text-amber-600 dark:text-amber-300">
                         קבצים בפועל ב-ZIP
                       </div>
                     </div>
                   )}
                 </div>
-                <div className="mt-4 mb-4 text-center">
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    💡 <strong>חשוב:</strong>  ייתכן וההורדה תקח מעט זמן, תלוי בכמות התמונות והסרטונים שהאורחים העלו. ההמלצה להוריד מהמחשב
+                <div className="mt-3 sm:mt-4 mb-3 sm:mb-4 text-center px-2">
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-2">
+                    💡 <strong>חשוב:</strong> ייתכן וההורדה תקח מעט זמן, תלוי בכמות התמונות והסרטונים שהאורחים העלו. ההמלצה להוריד מהמחשב
                   </p>
                 </div>
                 {/* Download Button */}
-                <div className="text-center">
+                <div className="text-center px-2">
                   <button
                     onClick={handleDownload}
                     disabled={isDownloading || isLoadingFileCount}
-                    className={`px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 flex items-center gap-3 mx-auto ${
+                    className={`px-4 sm:px-6 md:px-8 py-3 sm:py-4 rounded-full font-semibold text-sm sm:text-base md:text-lg transition-all duration-300 flex items-center gap-2 sm:gap-3 mx-auto ${
                       isDownloading || isLoadingFileCount
                         ? 'bg-gray-400 cursor-not-allowed'
                         : 'bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 hover:scale-105'
@@ -418,24 +418,24 @@ export default function DownloadPage() {
                   >
                     {isDownloading ? (
                       <>
-                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
                         מוריד...
                       </>
                     ) : hasDownloadedOnce ? (
                       <>
-                        <Download className="w-5 h-5" />
+                        <Download className="w-4 h-4 sm:w-5 sm:h-5" />
                         הורד שוב
                       </>
                     ) : (
                       <>
-                        <Download className="w-5 h-5" />
+                        <Download className="w-4 h-4 sm:w-5 sm:h-5" />
                         התחל הורדה
                       </>
                     )}
                   </button>
                                     
                   {isDownloading && (
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-3">
+                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-3">
                       ההורדה תתחיל בקרוב. אנא אל תסגרו את הדף.
                     </p>
                   )}

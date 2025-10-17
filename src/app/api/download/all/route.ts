@@ -20,7 +20,7 @@ const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
 export async function POST() {
   try {
     // Check if enough time has passed since the wedding (25 hours)
-    const weddingDate = new Date('2025-09-18T20:00:00+03:00');
+    const weddingDate = new Date('2025-10-20T20:00:00+03:00');
     const downloadDate = new Date(weddingDate.getTime() + (25 * 60 * 60 * 1000));
     const currentTime = new Date();
 

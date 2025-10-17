@@ -32,11 +32,15 @@ functions:
           bucket: ${env:S3_BUCKET_NAME}
           event: s3:ObjectCreated:*
           rules:
-            - prefix: */raw/
+            - prefix: wedding-sapir-idan/raw/
     layers:
-      - arn:aws:lambda:${env:AWS_REGION, 'us-east-1'}:175033217214:layer:ffmpeg:1
+      # Note: FFmpeg layer for il-central-1 region
+      # Public layer: arn:aws:lambda:il-central-1:175033217214:layer:ffmpeg:1
+      # If not available, you'll need to create a custom layer or use MediaConvert
+      - arn:aws:lambda:il-central-1:175033217214:layer:ffmpeg:1
     environment:
       S3_BUCKET_NAME: ${env:S3_BUCKET_NAME}
+      COUPLE_ID: wedding-sapir-idan
 
 plugins:
   - serverless-typescript
