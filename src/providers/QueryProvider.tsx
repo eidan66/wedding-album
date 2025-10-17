@@ -11,6 +11,37 @@ interface QueryProviderProps {
   children: React.ReactNode;
 }
 
+// Create a singleton queryClient instance for export
+// This allows other parts of the app to invalidate cache without React context
+let globalQueryClient: QueryClient | null = null;
+
+export const getQueryClient = () => {
+  if (!globalQueryClient) {
+    globalQueryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          staleTime: API_CONFIG.STALE_TIME,
+          gcTime: API_CONFIG.CACHE_TIME,
+          retry: API_CONFIG.RETRY_ATTEMPTS,
+          retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+          refetchOnWindowFocus: false,
+          refetchOnMount: true,
+          refetchOnReconnect: true,
+          throwOnError: false,
+        },
+        mutations: {
+          retry: 1,
+          retryDelay: 1000,
+        },
+      },
+    });
+  }
+  return globalQueryClient;
+};
+
+// Export for convenience
+export const queryClient = getQueryClient();
+
 export default function QueryProvider({ children }: QueryProviderProps) {
   const [isClient, setIsClient] = useState(false);
 
@@ -19,37 +50,7 @@ export default function QueryProvider({ children }: QueryProviderProps) {
     setIsClient(true);
   }, []);
 
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            // Default stale time - how long data stays fresh
-            staleTime: API_CONFIG.STALE_TIME,
-            
-            // Default cache time - how long data stays in cache
-            gcTime: API_CONFIG.CACHE_TIME, // formerly cacheTime
-            
-            // Retry configuration
-            retry: API_CONFIG.RETRY_ATTEMPTS,
-            retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-            
-            // Refetch configuration
-            refetchOnWindowFocus: false, // Don't refetch on window focus
-            refetchOnMount: true, // Always refetch on mount
-            refetchOnReconnect: true, // Refetch when reconnecting
-            
-            // Error handling
-            throwOnError: false, // Don't throw errors to component boundary
-          },
-          mutations: {
-            // Retry mutations once
-            retry: 1,
-            retryDelay: 1000,
-          },
-        },
-      })
-  );
+  const [clientQueryClient] = useState(() => getQueryClient());
 
   // Create persister for localStorage (only on client)
   const [persister] = useState(() => {
@@ -73,7 +74,7 @@ export default function QueryProvider({ children }: QueryProviderProps) {
   // Don't render until client-side hydration is complete
   if (!isClient) {
     return (
-      <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={clientQueryClient}>
         {children}
       </QueryClientProvider>
     );
@@ -81,7 +82,7 @@ export default function QueryProvider({ children }: QueryProviderProps) {
 
   return (
     <PersistQueryClientProvider
-      client={queryClient}
+      client={clientQueryClient}
       persistOptions={{
         persister: persister!,
         maxAge: API_CONFIG.CACHE_TIME, // Match gcTime
