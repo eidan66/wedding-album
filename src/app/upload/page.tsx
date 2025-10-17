@@ -104,12 +104,32 @@ export default function UploadPage() {
       setErrorReport(null); // Clear any previous errors
       showToast('העלאה הושלמה! 🎉', 'success');
       setShowSuccess(true);
-      setTimeout(() => {
+      setTimeout(async () => {
         setSelectedFiles([]);
         setUploaderName("");
         setCaption("");
         setShowSuccess(false);
         setHasShownSuccessToast(false);
+        
+        // CRITICAL: Ensure cache is invalidated before navigation
+        try {
+          const { queryClient } = await import('@/providers/QueryProvider');
+          const { mediaQueryKeys } = await import('@/hooks/useMediaQueries');
+          await queryClient.invalidateQueries({ queryKey: mediaQueryKeys.all });
+          logger.info('Cache invalidated before navigation to gallery');
+        } catch (error) {
+          logger.warn('Failed to invalidate cache before navigation', {
+            error: error instanceof Error ? error.message : String(error),
+          });
+        }
+        
+        // Set flag for gallery to force refetch (reliable for mobile)
+        try {
+          localStorage.setItem('forceGalleryRefetch', 'true');
+        } catch (e) {
+          // Ignore localStorage errors
+        }
+        
         navigate.push(createPageUrl("Gallery"));
       }, 4500);
     } else if (anyUploadFailed) {

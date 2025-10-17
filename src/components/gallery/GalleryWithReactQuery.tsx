@@ -13,6 +13,7 @@ import FilterTabs from "./FilterTabs";
 import GalleryHeader from "./GalleryHeader";
 import { ShareFAB } from "@/components/ui/ShareFAB";
 import type { WeddingMediaItem } from "@/Entities/WeddingMedia";
+import { logger } from "@/lib/logger";
 
 const ITEMS_PER_PAGE = 50;
 
@@ -28,11 +29,29 @@ export default function GalleryWithReactQuery() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    refetch,
   } = useInfiniteMediaList({
     sort: "-created_date",
     limit: ITEMS_PER_PAGE,
     type: undefined,
   });
+
+  // Check for force refetch flag (set by upload page)
+  useEffect(() => {
+    try {
+      const shouldRefetch = localStorage.getItem('forceGalleryRefetch');
+      if (shouldRefetch === 'true') {
+        logger.info('Force refetch triggered from localStorage flag');
+        localStorage.removeItem('forceGalleryRefetch');
+        // Force refetch with a small delay to ensure everything is ready
+        setTimeout(() => {
+          refetch();
+        }, 100);
+      }
+    } catch (e) {
+      // Ignore localStorage errors
+    }
+  }, [refetch]);
 
   const { all: totalCount, photos: photoCount, videos: videoCount } = useAllMediaCounts();
 
