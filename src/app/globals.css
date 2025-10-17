@@ -258,6 +258,22 @@
   animation: shimmer 2s infinite;
 }
 
+/* Slide up animation for error messages */
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
 /* RTL Font Support */
 * {
   font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif, 'Arial Hebrew', 'Noto Sans Hebrew';

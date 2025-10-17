@@ -5,6 +5,7 @@ import type { WeddingMediaItem } from '../Entities/WeddingMedia';
 import { generateVideoThumbnail, isMobile } from '../utils';
 import { compressImage, replaceExtension } from '../utils/compress';
 import { logger } from '../lib/logger';
+import { errorLogger, ErrorReport } from '../utils/errorLogger';
 
 async function asyncPool<T, R>(
   poolLimit: number,
@@ -35,6 +36,7 @@ export interface FileUploadState {
   status: UploadStatus;
   progress: number;
   error?: string;
+  errorReport?: ErrorReport;
   mediaItem?: WeddingMediaItem;
   uploaderName?: string;
   caption?: string;
@@ -211,6 +213,9 @@ export const useBulkUploader = () => {
 
 
   const uploadFiles = async (files: File[], uploaderName: string, caption: string) => {
+    // Clear previous error logs
+    errorLogger.clearLogs();
+    
     // Log upload start
     logger.info('Starting bulk upload process', {
       fileCount: files.length,
@@ -218,6 +223,13 @@ export const useBulkUploader = () => {
       caption: caption || 'No caption',
       totalSize: files.reduce((sum, file) => sum + file.size, 0),
       fileTypes: files.map(f => f.type),
+    });
+    
+    errorLogger.info('Starting bulk upload process', {
+      fileCount: files.length,
+      uploaderName,
+      caption: caption || 'No caption',
+      totalSize: files.reduce((sum, file) => sum + file.size, 0),
     });
 
     // Reset upload controllers
@@ -391,19 +403,52 @@ export const useBulkUploader = () => {
           )
           );
       } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        const stackTrace = err instanceof Error ? err.stack : undefined;
+        
         logger.uploadError(originalFile.name, err instanceof Error ? err : new Error(String(err)), {
           fileName: originalFile.name,
           fileSize: originalFile.size,
           fileType: originalFile.type,
           uploaderName,
-          errorMessage: err instanceof Error ? err.message : String(err),
+          errorMessage,
         });
+        
+        errorLogger.error(`Upload failed for file: ${originalFile.name}`, {
+          fileName: originalFile.name,
+          fileSize: originalFile.size,
+          fileType: originalFile.type,
+          uploaderName,
+          errorMessage,
+        });
+        
+        // Generate detailed error report
+        const errorReport = errorLogger.generateErrorReport(
+          errorMessage,
+          {
+            name: originalFile.name,
+            size: originalFile.size,
+            type: originalFile.type,
+          },
+          {
+            uploaderName,
+            caption,
+            totalFiles: files.length,
+            failedFiles: 1,
+          },
+          stackTrace
+        );
         
         console.error(`Upload failed for file ${originalFile.name} (${originalFile.type}):`, err);
         setUploads(prev =>
           prev.map((u, i) =>
             i === idx
-              ? { ...u, status: 'error' as UploadStatus, error: (err as Error).message || 'An error occurred' }
+              ? { 
+                  ...u, 
+                  status: 'error' as UploadStatus, 
+                  error: errorMessage,
+                  errorReport,
+                }
               : u
           )
           );
@@ -422,22 +467,43 @@ export const useBulkUploader = () => {
       totalSize: files.reduce((sum, file) => sum + file.size, 0),
     });
 
-    // Invalidate media cache after successful uploads
+    // Invalidate media cache after successful uploads (both server and client)
     if (successCount > 0) {
       try {
+        // Invalidate server cache (Redis)
         await fetch('/api/cache/invalidate', {
           method: 'POST',
         });
-        logger.info('Media cache invalidated after successful uploads', {
+        logger.info('Server cache invalidated after successful uploads', {
           successCount,
           totalFiles: files.length,
         });
       } catch (error) {
-        logger.warn('Failed to invalidate cache after upload', {
+        logger.warn('Failed to invalidate server cache after upload', {
           error: error instanceof Error ? error.message : String(error),
           successCount,
         });
         // Non-fatal: cache will expire eventually
+      }
+      
+      // CRITICAL: Invalidate React Query cache on client
+      // This ensures the gallery shows new items immediately
+      if (typeof window !== 'undefined') {
+        try {
+          const { queryClient } = await import('@/providers/QueryProvider');
+          const { mediaQueryKeys } = await import('@/hooks/useMediaQueries');
+          
+          queryClient.invalidateQueries({ queryKey: mediaQueryKeys.all });
+          
+          logger.info('React Query cache invalidated after successful uploads', {
+            successCount,
+            totalFiles: files.length,
+          });
+        } catch (error) {
+          logger.warn('Failed to invalidate React Query cache', {
+            error: error instanceof Error ? error.message : String(error),
+          });
+        }
       }
     }
   };

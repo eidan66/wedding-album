@@ -13,8 +13,10 @@ import UploadZone from "../../components/upload/UploadZone";
 import UploadPreview from "../../components/upload/UploadPreview";
 import SuccessAnimation from "../../components/upload/SuccessAnimation";
 import UploadProgressIndicator from "../../components/upload/UploadProgressIndicator";
+import UploadErrorMessage from "../../components/upload/UploadErrorMessage";
 import { useBulkUploader } from "../../hooks/useBulkUploader";
 import { useToast } from "@/components/ui/toast";
+import type { ErrorReport } from "@/utils/errorLogger";
 
 export default function UploadPage() {
   const navigate = useRouter();
@@ -23,6 +25,7 @@ export default function UploadPage() {
   const [caption, setCaption] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
   const [hasShownSuccessToast, setHasShownSuccessToast] = useState(false);
+  const [errorReport, setErrorReport] = useState<ErrorReport | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const firstItemRef = useRef<HTMLDivElement>(null);
 
@@ -98,6 +101,7 @@ export default function UploadPage() {
 
     if (allUploadsSuccessful) {
       setHasShownSuccessToast(true);
+      setErrorReport(null); // Clear any previous errors
       showToast('העלאה הושלמה! 🎉', 'success');
       setShowSuccess(true);
       setTimeout(() => {
@@ -112,6 +116,12 @@ export default function UploadPage() {
       setHasShownSuccessToast(true);
       showToast('חלק מהקבצים לא הועלו. נסו שוב 🙏', 'error');
       console.error("One or more uploads failed.", uploads.filter(upload => upload.status === 'error'));
+      
+      // Find the first failed upload with an error report
+      const failedUpload = uploads.find(u => u.status === 'error' && u.errorReport);
+      if (failedUpload?.errorReport) {
+        setErrorReport(failedUpload.errorReport);
+      }
     }
   }, [uploads, navigate, showToast, hasShownSuccessToast]);
 
@@ -216,6 +226,14 @@ export default function UploadPage() {
           </motion.div>
         )}
       </div>
+      
+      {/* Error Message with Log Export */}
+      {errorReport && (
+        <UploadErrorMessage 
+          errorReport={errorReport} 
+          onClose={() => setErrorReport(null)}
+        />
+      )}
     </div>
   );
 }
