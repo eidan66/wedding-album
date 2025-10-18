@@ -1,6 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
-import { Camera, Heart, Users, Download } from "lucide-react";
+import { Heart, Download } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 

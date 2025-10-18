@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { S3Client, ListBucketsCommand } from '@aws-sdk/client-s3';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Check environment variables
     const envCheck = {
@@ -28,9 +28,9 @@ export async function GET(request: NextRequest) {
         });
 
         await s3Client.send(new ListBucketsCommand({}));
-        s3Test.connected = true;
+        s3Test = { connected: true, error: null };
       } catch (error) {
-        s3Test.error = error instanceof Error ? error.message : String(error);
+        s3Test = { connected: false, error: error instanceof Error ? error.message : String(error) };
       }
     }
 

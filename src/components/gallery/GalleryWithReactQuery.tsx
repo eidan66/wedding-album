@@ -13,7 +13,7 @@ import FilterTabs from "./FilterTabs";
 import GalleryHeader from "./GalleryHeader";
 import { ShareFAB } from "@/components/ui/ShareFAB";
 import type { WeddingMediaItem } from "@/Entities/WeddingMedia";
-import { logger } from "@/lib/logger";
+// import { logger } from "@/lib/logger";
 
 const ITEMS_PER_PAGE = 50;
 
@@ -29,7 +29,6 @@ export default function GalleryWithReactQuery() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-    refetch,
   } = useInfiniteMediaList({
     sort: "-created_date",
     limit: ITEMS_PER_PAGE,

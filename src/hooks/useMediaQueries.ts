@@ -1,6 +1,6 @@
 import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiServices } from '@/services/api';
-import { logger } from '@/lib/logger';
+// import { logger } from '@/lib/logger';
 
 // Query Keys - centralized for consistency
 export const mediaQueryKeys = {
