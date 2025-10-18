@@ -26,7 +26,12 @@ export async function POST(request: NextRequest) {
     // Check if required environment variables are set
     if (!process.env.AWS_REGION || !process.env.AWS_ACCESS_KEY_ID || 
         !process.env.AWS_SECRET_ACCESS_KEY || !process.env.S3_BUCKET_NAME) {
-      console.error('Missing required AWS environment variables');
+      console.error('Missing required AWS environment variables', {
+        hasRegion: !!process.env.AWS_REGION,
+        hasAccessKey: !!process.env.AWS_ACCESS_KEY_ID,
+        hasSecretKey: !!process.env.AWS_SECRET_ACCESS_KEY,
+        hasBucket: !!process.env.S3_BUCKET_NAME,
+      });
       return NextResponse.json(
         {
           error: 'AWS configuration is incomplete. Please check environment variables.',
@@ -36,6 +41,17 @@ export async function POST(request: NextRequest) {
     }
 
     const { filename, filetype, filesize, title, uploaderName } = await request.json() as UploadRequest;
+    
+    console.log('Upload URL request received', {
+      filename,
+      filetype,
+      filesize,
+      hasTitle: !!title,
+      hasUploaderName: !!uploaderName,
+      environment: process.env.NODE_ENV,
+      bucket: process.env.S3_BUCKET_NAME,
+      region: process.env.AWS_REGION,
+    });
 
     // Validate required fields
     if (!filename || !filetype || !filesize) {

@@ -195,7 +195,11 @@ async function uploadPutWithRetry(url: string, file: File, idx: number, setUploa
         fileSize: file.size,
         readyState: xhr.readyState,
         status: xhr.status,
+        url: url.substring(0, 100) + '...', // Log partial URL for debugging
         event,
+        userAgent: navigator.userAgent,
+        isSecureContext: window.isSecureContext,
+        location: window.location.href,
       });
       errorLogger.error(errorMessage, {
         fileName: file.name,
