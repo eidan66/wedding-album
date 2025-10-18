@@ -111,7 +111,8 @@ export default function UploadPage() {
         setShowSuccess(false);
         setHasShownSuccessToast(false);
         
-        // CRITICAL: Ensure cache is invalidated before navigation
+        // CRITICAL: Invalidate cache before navigation
+        // TanStack Query will automatically refetch fresh data when gallery mounts
         try {
           const { queryClient } = await import('@/providers/QueryProvider');
           const { mediaQueryKeys } = await import('@/hooks/useMediaQueries');
@@ -121,15 +122,6 @@ export default function UploadPage() {
           logger.warn('Failed to invalidate cache before navigation', {
             error: error instanceof Error ? error.message : String(error),
           });
-        }
-        
-        // Clear persisted cache and set flag for gallery to force refetch
-        try {
-          localStorage.removeItem('WEDDING_GALLERY_CACHE'); // Clear persisted React Query cache
-          localStorage.setItem('forceGalleryRefetch', 'true');
-          logger.info('Cleared persisted cache before navigation');
-        } catch (e) {
-          // Ignore localStorage errors
         }
         
         navigate.push(createPageUrl("Gallery"));

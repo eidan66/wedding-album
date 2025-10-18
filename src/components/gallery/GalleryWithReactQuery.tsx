@@ -36,19 +36,8 @@ export default function GalleryWithReactQuery() {
     type: undefined,
   });
 
-  // Ensure fresh data on mount - check and clear localStorage flag
-  useEffect(() => {
-    try {
-      const shouldRefetch = localStorage.getItem('forceGalleryRefetch');
-      if (shouldRefetch === 'true') {
-        localStorage.removeItem('forceGalleryRefetch');
-        logger.info('Force refetching gallery data after upload');
-        refetch(); // Explicitly refetch instead of relying on automatic refetch
-      }
-    } catch (e) {
-      // Ignore localStorage errors
-    }
-  }, [refetch]);
+  // TanStack Query automatically refetches on mount due to staleTime: 0
+  // No need for localStorage flags - always fresh data!
 
   const { all: totalCount, photos: photoCount, videos: videoCount } = useAllMediaCounts();
 
