@@ -123,9 +123,11 @@ export default function UploadPage() {
           });
         }
         
-        // Set flag for gallery to force refetch (reliable for mobile)
+        // Clear persisted cache and set flag for gallery to force refetch
         try {
+          localStorage.removeItem('WEDDING_GALLERY_CACHE'); // Clear persisted React Query cache
           localStorage.setItem('forceGalleryRefetch', 'true');
+          logger.info('Cleared persisted cache before navigation');
         } catch (e) {
           // Ignore localStorage errors
         }

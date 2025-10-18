@@ -42,12 +42,13 @@ export default function GalleryWithReactQuery() {
       const shouldRefetch = localStorage.getItem('forceGalleryRefetch');
       if (shouldRefetch === 'true') {
         localStorage.removeItem('forceGalleryRefetch');
-        // React Query will automatically refetch due to staleTime: 0
+        logger.info('Force refetching gallery data after upload');
+        refetch(); // Explicitly refetch instead of relying on automatic refetch
       }
     } catch (e) {
       // Ignore localStorage errors
     }
-  }, []);
+  }, [refetch]);
 
   const { all: totalCount, photos: photoCount, videos: videoCount } = useAllMediaCounts();
 
