@@ -84,24 +84,25 @@ class Logger {
   }
 
   info(message: string, context?: LogContext): void {
-    // Disabled to prevent Sentry rate limiting
-    if (this.isDevelopment) {
-      console.log(`[INFO] ${message}`, context);
+    console.log(`[INFO] ${message}`, context);
+    // Also log to Sentry in production if needed
+    if (this.isProduction) {
+      this.logToSentry(LogLevel.INFO, message, context);
     }
   }
 
   warn(message: string, context?: LogContext): void {
-    // Disabled to prevent Sentry rate limiting
-    if (this.isDevelopment) {
-      console.warn(`[WARN] ${message}`, context);
+    console.warn(`[WARN] ${message}`, context);
+    // Also log to Sentry in production
+    if (this.isProduction) {
+      this.logToSentry(LogLevel.WARN, message, context);
     }
   }
 
   error(message: string, error?: Error, context?: LogContext): void {
-    // Disabled to prevent Sentry rate limiting
-    if (this.isDevelopment) {
-      console.error(`[ERROR] ${message}`, error, context);
-    }
+    console.error(`[ERROR] ${message}`, error, context);
+    // Always log errors to Sentry
+    this.logToSentry(LogLevel.ERROR, message, context, error);
   }
 
   // Specialized logging methods

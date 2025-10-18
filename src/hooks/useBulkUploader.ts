@@ -514,45 +514,24 @@ export const useBulkUploader = () => {
         totalSize: files.reduce((sum, file) => sum + file.size, 0),
       });
 
-      // Invalidate media cache after successful uploads (both server and client)
+      // Invalidate React Query cache after successful uploads
+      // No need to invalidate server cache - React Query with staleTime: 0 always fetches fresh data
       if (successCount > 0) {
-        // Run cache invalidation asynchronously but don't block
         (async () => {
           try {
-            // Invalidate server cache (Redis)
-            await fetch('/api/cache/invalidate', {
-              method: 'POST',
-            });
-            logger.info('Server cache invalidated after successful uploads', {
+            const { queryClient } = await import('@/providers/QueryProvider');
+            const { mediaQueryKeys } = await import('@/hooks/useMediaQueries');
+            
+            await queryClient.invalidateQueries({ queryKey: mediaQueryKeys.all });
+            
+            logger.info('React Query cache invalidated after successful uploads', {
               successCount,
               totalFiles: files.length,
             });
           } catch (error) {
-            logger.warn('Failed to invalidate server cache after upload', {
+            logger.warn('Failed to invalidate React Query cache', {
               error: error instanceof Error ? error.message : String(error),
-              successCount,
             });
-            // Non-fatal: cache will expire eventually
-          }
-          
-          // CRITICAL: Invalidate React Query cache on client
-          // This ensures the gallery shows new items immediately
-          if (typeof window !== 'undefined') {
-            try {
-              const { queryClient } = await import('@/providers/QueryProvider');
-              const { mediaQueryKeys } = await import('@/hooks/useMediaQueries');
-              
-              await queryClient.invalidateQueries({ queryKey: mediaQueryKeys.all });
-              
-              logger.info('React Query cache invalidated after successful uploads', {
-                successCount,
-                totalFiles: files.length,
-              });
-            } catch (error) {
-              logger.warn('Failed to invalidate React Query cache', {
-                error: error instanceof Error ? error.message : String(error),
-              });
-            }
           }
         })();
       }
